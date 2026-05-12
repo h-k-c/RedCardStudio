@@ -84,6 +84,14 @@
           @click="store.goToPage(idx - 1)"
         ></span>
       </div>
+
+      <!-- 自动分页提示 -->
+      <div v-if="store.totalPages > 1" class="converter-view__split-hint">
+        <svg class="converter-view__split-hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
+        </svg>
+        <span>已自动拆分为 {{ store.totalPages }} 页</span>
+      </div>
     </main>
 
     <!-- Right: fixed style panel -->
@@ -530,6 +538,37 @@ async function handleExportAll() {
   background: #667eea !important;
   transform: scale(1.3);
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* 自动分页提示 */
+.converter-view__split-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 12px;
+  font-size: 13px;
+  color: #667eea;
+  font-weight: 500;
+  animation: converter-view__split-hint-fadeIn 0.3s ease-out;
+}
+.converter-view__split-hint-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+@keyframes converter-view__split-hint-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 右侧设置面板 */
