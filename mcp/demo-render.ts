@@ -19,6 +19,14 @@ const MIME_MAP: Record<string, string> = {
   '.ttf': 'font/ttf'
 }
 
+function findFreePort(start = 4100): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const srv = createServer()
+    srv.listen(start, '127.0.0.1', () => { const p = (srv.address() as any).port; srv.close(() => resolve(p)) })
+    srv.on('error', () => findFreePort(start + 1).then(resolve, reject))
+  })
+}
+
 function startStaticServer(port: number): Promise<{ close: () => void }> {
   return new Promise((resolve, reject) => {
     const srv = createServer((req, res) => {
@@ -41,7 +49,7 @@ function startStaticServer(port: number): Promise<{ close: () => void }> {
 }
 
 async function render() {
-  const port = 3458
+  const port = await findFreePort()
   const { close } = await startStaticServer(port)
 
   const browser = await chromium.launch({ headless: true })

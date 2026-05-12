@@ -31,3 +31,4 @@ _old/
 *.orig
 docs/
 mcp/test-output.png
+mcp/test-full-output/
