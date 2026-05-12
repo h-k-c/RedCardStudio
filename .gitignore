@@ -30,5 +30,3 @@ _old/
 # Misc
 *.orig
 docs/
-mcp/test-output.png
-mcp/test-full-output/

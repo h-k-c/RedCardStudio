@@ -3,34 +3,24 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "bin": {
-    "redcard-mcp": "./mcp/server.ts"
-  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
-    "build:mcp": "vue-tsc --noEmit && vite build && tsx mcp/build.ts",
     "preview": "vite preview",
-    "typecheck": "vue-tsc --noEmit",
-    "mcp": "tsx mcp/server.ts",
-    "mcp:test": "tsx mcp/test-render.ts"
+    "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
     "html2canvas": "^1.4.1",
     "marked": "^18.0.3",
     "md-editor-v3": "^6.5.0",
     "pinia": "^2.2.0",
-    "playwright": "^1.59.1",
     "vue": "^3.5.0",
-    "vue-router": "^4.4.0",
-    "zod": "^4.4.3"
+    "vue-router": "^4.4.0"
   },
   "devDependencies": {
     "@types/marked": "^5.0.2",
     "@types/node": "^25.6.2",
     "@vitejs/plugin-vue": "^5.1.0",
-    "tsx": "^4.21.0",
     "typescript": "~5.6.0",
     "vite": "^6.0.0",
     "vue-tsc": "^2.1.0"
