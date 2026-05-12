@@ -367,49 +367,20 @@ async function handleExportCurrent() {
 }
 
 async function handleExportAll() {
-  // 保存当前页索引
-  const originalPageIndex = store.currentPageIndex
-  
-  // 逐页导出，但不切换页面
+  // 逐页导出，不切换页面
   for (let i = 0; i < store.totalPages; i++) {
-    // 获取该页的 canvas ref
     const canvas = canvasRefs.value.get(i)
     const el = canvas?.cardRef
     
     if (el) {
-      // 临时设置 scale 为 1 和 overflow 为 visible，以便正确渲染
-      const originalScale = el.parentElement?.style.transform || ''
-      const originalOverflow = el.parentElement?.style.overflow || ''
+      // exportElement 会自动隐藏元素并恢复
+      await exportElement(el, `redcard-${store.currentStyle}-p${i + 1}-${Date.now()}.png`)
       
-      if (el.parentElement) {
-        el.parentElement.style.transform = 'scale(1)'
-        el.parentElement.style.overflow = 'visible'
-      }
-      
-      // 等待一帧让样式生效
-      await nextTick()
-      
-      try {
-        // 导出
-        await exportElement(el, `redcard-${store.currentStyle}-p${i + 1}-${Date.now()}.png`)
-      } finally {
-        // 恢复原始样式
-        if (el.parentElement) {
-          el.parentElement.style.transform = originalScale
-          el.parentElement.style.overflow = originalOverflow
-        }
-      }
-      
-      // 延迟一下再导出下一页，避免浏览器卡顿
+      // 延迟一下再导出下一页
       if (i < store.totalPages - 1) {
         await new Promise(r => setTimeout(r, 200))
       }
     }
-  }
-  
-  // 确保回到原来的页面（虽然我们没有切换，但为了安全起见）
-  if (store.currentPageIndex !== originalPageIndex) {
-    store.goToPage(originalPageIndex)
   }
 }
 </script>

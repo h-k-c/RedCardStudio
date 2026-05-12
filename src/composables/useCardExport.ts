@@ -4,12 +4,22 @@ export function useCardExport() {
   async function exportElement(el: HTMLElement, filename?: string): Promise<void> {
     // 临时移除 zoom 以确保 html2canvas 以原始 1080×1440 尺寸渲染
     const originalZoom = el.style.zoom
+    const originalTransform = el.style.transform
+    const originalTransition = el.style.transition
     const parent = el.parentElement
     const originalOverflow = parent?.style.overflow || ''
     const originalParentWidth = parent?.style.width || ''
     const originalParentHeight = parent?.style.height || ''
 
+    // 隐藏元素，避免用户看到样式变化
+    el.style.visibility = 'hidden'
+    el.style.position = 'absolute'
+    el.style.left = '-9999px'
+    
     el.style.zoom = '1'
+    el.style.transform = 'scale(1)'
+    el.style.transition = 'none'
+    
     if (parent) {
       parent.style.overflow = 'visible'
       parent.style.width = 'auto'
@@ -17,6 +27,9 @@ export function useCardExport() {
     }
 
     try {
+      // 等待一帧让样式生效
+      await new Promise(resolve => requestAnimationFrame(resolve))
+      
       const canvas = await html2canvas(el, {
         scale: 2,
         useCORS: true,
@@ -29,7 +42,14 @@ export function useCardExport() {
       link.href = canvas.toDataURL('image/png')
       link.click()
     } finally {
+      // 恢复所有样式
       el.style.zoom = originalZoom
+      el.style.transform = originalTransform
+      el.style.transition = originalTransition
+      el.style.visibility = ''
+      el.style.position = ''
+      el.style.left = ''
+      
       if (parent) {
         parent.style.overflow = originalOverflow
         parent.style.width = originalParentWidth

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { CardStyle } from '@/types/styles'
-import type { CardData } from '@/types/card'
+import type { CardData, CardPageStyle } from '@/types/card'
 import { useMarkdownParser } from '@/composables/useMarkdownParser'
 import { STYLE_REGISTRY } from '@/data/styleRegistry'
 import { useImageStore } from './imageStore'
@@ -11,6 +11,8 @@ export const useCardStore = defineStore('card', () => {
   const imageStore = useImageStore()
 
   const pageSources = ref<string[]>([''])
+  // 存储每页的独立样式
+  const pageStyles = ref<Array<CardPageStyle | null>>([null])
 
   const currentStyle = ref<CardStyle>('white')
   const author = ref('你的账号名')
@@ -31,7 +33,7 @@ export const useCardStore = defineStore('card', () => {
 
   // 为每一页解析 Markdown 数据
   const pages = computed<CardData[]>(() => {
-    return pageSources.value.map(source => {
+    return pageSources.value.map((source, index) => {
       // 替换图片占位符
       const resolved = source.replace(
         /!\[([^\]]*)\]\((img-\d+)\)/g,
@@ -40,7 +42,10 @@ export const useCardStore = defineStore('card', () => {
           return url ? `![${alt}](${url})` : `![${alt}]()`
         }
       )
-      return parseSinglePage(resolved)
+      const pageData = parseSinglePage(resolved)
+      // 附加页面独立样式
+      pageData.pageStyle = pageStyles.value[index] || null
+      return pageData
     })
   })
 
@@ -89,12 +94,14 @@ export const useCardStore = defineStore('card', () => {
   function addPage() {
     const template = `# 新页面\n\n> 副标题\n\n## 步骤一\n在这里输入内容...\n`
     pageSources.value.splice(currentPageIndex.value + 1, 0, template)
+    pageStyles.value.splice(currentPageIndex.value + 1, 0, null)
     currentPageIndex.value++
   }
 
   function deletePage() {
     if (pageSources.value.length <= 1) return
     pageSources.value.splice(currentPageIndex.value, 1)
+    pageStyles.value.splice(currentPageIndex.value, 1)
     if (currentPageIndex.value >= pageSources.value.length) {
       currentPageIndex.value = pageSources.value.length - 1
     }
@@ -105,10 +112,9 @@ export const useCardStore = defineStore('card', () => {
    */
   function lockPage() {
     const pageIndex = currentPageIndex.value
-    if (pageIndex >= 0 && pageIndex < pages.value.length) {
-      const page = pages.value[pageIndex]
+    if (pageIndex >= 0 && pageIndex < pageSources.value.length) {
       // 保存当前全局样式到页面
-      page.pageStyle = {
+      pageStyles.value[pageIndex] = {
         style: currentStyle.value,
         titleFont: titleFont.value,
         bodyFont: bodyFont.value,
@@ -126,9 +132,8 @@ export const useCardStore = defineStore('card', () => {
    */
   function unlockPage() {
     const pageIndex = currentPageIndex.value
-    if (pageIndex >= 0 && pageIndex < pages.value.length) {
-      const page = pages.value[pageIndex]
-      page.pageStyle = null
+    if (pageIndex >= 0 && pageIndex < pageSources.value.length) {
+      pageStyles.value[pageIndex] = null
     }
   }
 
@@ -137,8 +142,8 @@ export const useCardStore = defineStore('card', () => {
    */
   function isPageLocked(): boolean {
     const pageIndex = currentPageIndex.value
-    if (pageIndex >= 0 && pageIndex < pages.value.length) {
-      return !!pages.value[pageIndex].pageStyle
+    if (pageIndex >= 0 && pageIndex < pageSources.value.length) {
+      return !!pageStyles.value[pageIndex]
     }
     return false
   }
@@ -169,6 +174,7 @@ export const useCardStore = defineStore('card', () => {
 
   function reset() {
     pageSources.value = ['']
+    pageStyles.value = [null]
     currentPageIndex.value = 0
   }
 
