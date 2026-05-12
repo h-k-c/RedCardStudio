@@ -1,6 +1,5 @@
 import { marked } from 'marked'
 import type { CardData } from '@/types/card'
-import { useImageStore } from '@/stores/imageStore'
 
 export interface MultiPageResult {
   pages: CardData[]
@@ -88,9 +87,6 @@ export function useMarkdownParser() {
       tags: [],
       coverImage: undefined,
     }
-
-    // 获取 imageStore 实例
-    const imageStore = useImageStore()
 
     let currentStep: { title: string; desc: string; tip: string } | null = null
     let inCodeBlock = false

@@ -20,6 +20,17 @@ const MIME_MAP: Record<string, string> = {
   '.ttf': 'font/ttf'
 }
 
+function findFreePort(start = 3457): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const srv = createServer()
+    srv.listen(start, '127.0.0.1', () => {
+      const port = (srv.address() as any).port
+      srv.close(() => resolve(port))
+    })
+    srv.on('error', () => findFreePort(start + 1).then(resolve, reject))
+  })
+}
+
 function startStaticServer(port: number): Promise<{ close: () => void }> {
   return new Promise((resolve, reject) => {
     const srv = createServer((req, res) => {
@@ -47,7 +58,7 @@ async function test() {
     process.exit(1)
   }
 
-  const port = 3457
+  const port = await findFreePort()
   const { close } = await startStaticServer(port)
   console.log(`静态服务器已启动: http://127.0.0.1:${port}`)
 
@@ -78,7 +89,7 @@ async function test() {
     if (window.__renderCard__) window.__renderCard__(cfg)
   }, {
     markdown: `# MCP 渲染测试\n\n> 验证 Markdown 转 PNG 功能\n\n## 第一步\n这是第一步的内容。\n\n## 第二步\n验证多步骤渲染。\n\n---\n测试完成`,
-    style: 'tech',
+    style: 'dark',
     author: 'MCP-Test'
   })
   await page.waitForFunction(() => document.body.dataset.rendered === 'true', { timeout: 15000 })

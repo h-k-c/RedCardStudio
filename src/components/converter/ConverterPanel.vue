@@ -22,9 +22,15 @@
         :title-font="store.titleFont"
         :body-font="store.bodyFont"
         :font-scale="store.fontScale"
+        :font-weight="store.fontWeight"
+        :header-text="store.headerText"
+        :author="store.author"
         @update:title-font="store.titleFont = $event"
         @update:body-font="store.bodyFont = $event"
         @update:font-scale="store.fontScale = $event"
+        @update:font-weight="store.fontWeight = $event"
+        @update:header-text="store.headerText = $event"
+        @update:author="store.author = $event"
       />
     </div>
 

@@ -155,7 +155,7 @@ async function autoPaginate() {
   
   // 从原始 Markdown 中提取最后一个步骤的完整内容
   const lines = currentSource.split('\n')
-  const stepStartIndex = lines.findIndex((line, idx) => {
+  const stepStartIndex = lines.findIndex((line, _idx) => {
     if (!line.startsWith('## ')) return false
     // 检查是否是最后一个步骤
     const stepTitle = line.substring(3).trim()
