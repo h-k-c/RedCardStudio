@@ -31,7 +31,8 @@ const RenderSchema = z.object({
   titleFont: z.string().optional().describe('标题字体 CSS 值'),
   bodyFont: z.string().optional().describe('正文字体 CSS 值'),
   headerText: z.string().optional().describe('页眉文字'),
-  footerSlogan: z.string().optional().describe('页脚标语')
+  footerSlogan: z.string().optional().describe('页脚标语'),
+  stepsPerPage: z.number().min(1).max(10).optional().describe('每页最多步骤数，自动分页（1-10）')
 })
 
 type RenderArgs = z.infer<typeof RenderSchema>
@@ -110,14 +111,33 @@ async function getPage(): Promise<Page> {
   return page
 }
 
-async function renderToPng(args: RenderArgs): Promise<Buffer> {
+async function renderOnePage(args: Record<string, any>): Promise<Buffer> {
   const p = await getPage()
   await p.evaluate(() => { document.body.dataset.rendered = 'false' })
-  await p.evaluate((cfg) => { if (window.__renderCard__) window.__renderCard__(cfg) }, { ...args, hidePage: true })
+  await p.evaluate((cfg) => { if (window.__renderCard__) window.__renderCard__(cfg) }, args)
   await p.waitForFunction(() => document.body.dataset.rendered === 'true', { timeout: 15000 })
   const cardEl = await p.$('.card')
   if (!cardEl) throw new Error('未找到卡片元素，渲染可能失败')
   return await cardEl.screenshot({ type: 'png' })
+}
+
+async function renderToPng(args: RenderArgs): Promise<Buffer[]> {
+  if (args.stepsPerPage && args.stepsPerPage > 0) {
+    // 先渲染第 0 页，同时获取总页数
+    const firstCfg = { ...args, pageIndex: 0, autoSplitMax: args.stepsPerPage, hidePage: true }
+    const firstPng = await renderOnePage(firstCfg)
+    const p = await getPage()
+    const total: number = await p.evaluate(() => window.__totalPages__ ?? 1)
+    if (total <= 1) return [firstPng]
+    const rest = await Promise.all(
+      Array.from({ length: total - 1 }, (_, i) =>
+        renderOnePage({ ...args, pageIndex: i + 1, autoSplitMax: args.stepsPerPage, hidePage: true })
+      )
+    )
+    return [firstPng, ...rest]
+  }
+  const png = await renderOnePage({ ...args, hidePage: true })
+  return [png]
 }
 
 async function main() {
@@ -173,6 +193,12 @@ async function main() {
           footerSlogan: {
             type: 'string',
             description: '页脚标语/品牌口号\n\n示例: "Less is more."、"Stay hungry, stay foolish."、"每天进步一点点"'
+          },
+          stepsPerPage: {
+            type: 'number',
+            minimum: 1,
+            maximum: 10,
+            description: '每页最多显示的步骤（## 段落）数量，超出自动分页并返回所有页图片（1-10）\n\n建议值：\n- 3: 内容较多、字体较大时\n- 4-5: 标准用法\n- 6+: 步骤内容较短时'
           }
         },
         required: ['markdown']
@@ -184,12 +210,21 @@ async function main() {
     if (request.params.name === 'render_markdown') {
       try {
         const args = RenderSchema.parse(request.params.arguments)
-        const pngBuffer = await renderToPng(args)
-        const base64 = pngBuffer.toString('base64')
+        const pngBuffers = await renderToPng(args)
+        const total = pngBuffers.length
+        const imageItems = pngBuffers.map((buf, i) => ({
+          type: 'image' as const,
+          mimeType: 'image/png',
+          data: buf.toString('base64'),
+          ...(total > 1 ? { description: `第 ${i + 1} / ${total} 页` } : {})
+        }))
+        const summary = total > 1
+          ? `✅ 已自动分页渲染为 ${total} 张 PNG 卡片（每页最多 ${args.stepsPerPage} 个步骤）\n\n📊 渲染详情：\n• 风格: ${args.style}\n• 共 ${total} 页\n• 尺寸: 1080 x 1440 px`
+          : `✅ Markdown 已成功渲染为 PNG 卡片\n\n📊 渲染详情：\n• 风格: ${args.style}\n• 尺寸: 1080 x 1440 px`
         return {
           content: [
-            { type: 'image', mimeType: 'image/png', data: base64 } as any,
-            { type: 'text', text: `✅ Markdown 已成功渲染为 PNG 卡片\n\n📊 渲染详情：\n• 风格: ${args.style}\n• 尺寸: 1080 x 1440 px\n• 格式: PNG（透明背景）\n• 用途: 社交媒体分享、知识卡片、内容可视化\n\n💡 提示: 可直接保存图片或转发到社交平台` }
+            ...imageItems as any[],
+            { type: 'text', text: summary }
           ]
         }
       } catch (err: any) {

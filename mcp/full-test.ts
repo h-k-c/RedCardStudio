@@ -48,6 +48,30 @@ async function renderCard(page: Page, cfg: Record<string, any>, outFile: string)
   console.log(`  ✅ ${outFile.replace(OUT_DIR + '/', '')}`)
 }
 
+async function renderAutoPages(page: Page, cfg: Record<string, any>, outPrefix: string): Promise<number> {
+  const firstCfg = { ...cfg, pageIndex: 0, autoSplitMax: cfg.stepsPerPage, hidePage: true }
+  await page.evaluate(() => { document.body.dataset.rendered = 'false' })
+  await page.evaluate((c) => { if ((window as any).__renderCard__) (window as any).__renderCard__(c) }, firstCfg)
+  await page.waitForFunction(() => document.body.dataset.rendered === 'true', { timeout: 15000 })
+  const total: number = await page.evaluate(() => (window as any).__totalPages__ ?? 1)
+  const el = await page.$('.card')
+  if (!el) throw new Error('未找到 .card 元素')
+  await el.screenshot({ path: `${outPrefix}-p1.png` })
+  console.log(`  ✅ ${outPrefix.replace(OUT_DIR + '/', '')}-p1.png`)
+  for (let i = 1; i < total; i++) {
+    const nextCfg = { ...cfg, pageIndex: i, autoSplitMax: cfg.stepsPerPage, hidePage: true }
+    await page.evaluate(() => { document.body.dataset.rendered = 'false' })
+    await page.evaluate((c) => { if ((window as any).__renderCard__) (window as any).__renderCard__(c) }, nextCfg)
+    await page.waitForFunction(() => document.body.dataset.rendered === 'true', { timeout: 15000 })
+    const el2 = await page.$('.card')
+    if (el2) {
+      await el2.screenshot({ path: `${outPrefix}-p${i + 1}.png` })
+      console.log(`  ✅ ${outPrefix.replace(OUT_DIR + '/', '')}-p${i + 1}.png`)
+    }
+  }
+  return total
+}
+
 const SAMPLE_MD = `# 手机摄影构图 5 个核心法则
 
 > 从入门到进阶，拍出杂志感大片
@@ -142,7 +166,29 @@ async function main() {
     }},
   ]
 
-  console.log(`\n🚀 开始全量测试，共 ${cases.length} 个用例\n`)
+  const AUTO_PAGE_MD = `# 学习 React 的完整路径
+
+> 从零到上手，系统化攻略
+
+## 第一步：理解组件思维
+React 的核心是组件化。把 UI 拆分为独立、可复用的组件，每个组件管理自己的状态。
+
+## 第二步：掌握 JSX
+JSX 是 JavaScript 的语法扩展，让你在 JS 中写看起来像 HTML 的代码。用 {} 插入变量。
+
+## 第三步：学习 Hooks
+useState 管理状态，useEffect 处理副作用，useRef 引用 DOM。先掌握这三个，够用了。
+
+## 第四步：状态管理
+小型应用用 useState，中型用 Context，大型用 Pinia / Zustand。不要过度设计。
+
+## 第五步：路由
+React Router 是标准方案。掌握 BrowserRouter、Route、Link、useNavigate 四个概念。
+
+## 第六步：数据请求
+用 fetch 或 axios，配合 useEffect 请求数据。SWR / React Query 是进阶选项。`
+
+  console.log(`\n🚀 开始全量测试，共 ${cases.length} 个用例 + 1 个自动分页用例\n`)
   let passed = 0, failed = 0
   for (const { label, cfg } of cases) {
     try {
@@ -152,6 +198,19 @@ async function main() {
       console.error(`  ❌ ${label}: ${e.message}`)
       failed++
     }
+  }
+
+  // 自动分页测试（每页 3 个步骤，共 6 步骤应分 2 页）
+  console.log('\n  📄 自动分页测试（stepsPerPage=3，共6步骤）')
+  try {
+    const total = await renderAutoPages(page, {
+      markdown: AUTO_PAGE_MD, style: 'magazine', author: '卡兹克', stepsPerPage: 3
+    }, pathResolve(OUT_DIR, '16-autopages'))
+    console.log(`     → 共渲染 ${total} 页`)
+    passed++
+  } catch (e: any) {
+    console.error(`  ❌ 16-autopages: ${e.message}`)
+    failed++
   }
 
   await browser.close()

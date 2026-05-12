@@ -37,6 +37,7 @@ interface RenderConfig {
   footerSlogan?: string
   pageIndex?: number
   hidePage?: boolean
+  autoSplitMax?: number
 }
 
 const { parseMultiPage } = useMarkdownParser()
@@ -48,7 +49,7 @@ const config = ref<RenderConfig>({
 
 const multiPageResult = computed(() => {
   if (!config.value.markdown) return null
-  return parseMultiPage(config.value.markdown, 0)
+  return parseMultiPage(config.value.markdown, config.value.autoSplitMax ?? 0)
 })
 
 const pageData = computed<CardData | null>(() => {
@@ -81,6 +82,7 @@ const fontOverrideStyle = computed(() => {
 declare global {
   interface Window {
     __renderCard__?: (cfg: RenderConfig) => Promise<void>
+    __totalPages__?: number
   }
 }
 
@@ -90,6 +92,7 @@ window.__renderCard__ = async (cfg: RenderConfig) => {
   await nextTick()
   // 等待字体和样式稳定
   await new Promise(r => setTimeout(r, 800))
+  window.__totalPages__ = multiPageResult.value?.totalPages ?? 1
   document.body.dataset.rendered = 'true'
 }
 </script>
