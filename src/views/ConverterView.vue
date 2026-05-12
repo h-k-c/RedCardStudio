@@ -94,25 +94,21 @@
       </div>
 
       <!-- 页面锁定控制 -->
-      <div class="converter-view__page-lock">
-        <div class="converter-view__page-lock-status">
-          <svg v-if="store.isPageLocked()" class="converter-view__page-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-          <svg v-else class="converter-view__page-lock-icon converter-view__page-lock-icon--unlocked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
-          </svg>
-          <span>{{ store.isPageLocked() ? '页面已锁定' : '页面未锁定' }}</span>
-        </div>
-        <button 
-          :class="['converter-view__page-lock-btn', { 'converter-view__page-lock-btn--locked': store.isPageLocked() }]"
-          @click="store.isPageLocked() ? store.unlockPage() : store.lockPage()"
-        >
-          {{ store.isPageLocked() ? '解锁' : '锁定' }}
-        </button>
-      </div>
+      <button 
+        :class="['converter-view__page-lock-btn', { 'converter-view__page-lock-btn--locked': store.isPageLocked() }]"
+        @click="store.isPageLocked() ? store.unlockPage() : store.lockPage()"
+        :title="store.isPageLocked() ? '点击解锁页面样式' : '点击锁定当前页面样式'"
+      >
+        <svg v-if="store.isPageLocked()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+        </svg>
+        <span>{{ store.isPageLocked() ? '已锁定' : '未锁定' }}</span>
+      </button>
     </main>
 
     <!-- Right: fixed style panel -->
@@ -602,57 +598,43 @@ async function handleExportAll() {
 }
 
 /* 页面锁定控制 */
-.converter-view__page-lock {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(10px);
-}
-.converter-view__page-lock-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #667eea;
-}
-.converter-view__page-lock-icon {
-  width: 18px;
-  height: 18px;
-  color: #667eea;
-}
-.converter-view__page-lock-icon--unlocked {
-  color: #adb5bd;
-}
 .converter-view__page-lock-btn {
-  padding: 6px 16px;
-  border: 1px solid #667eea;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
-  background: transparent;
-  color: #667eea;
-  font-size: 13px;
+  background: white;
+  color: #868e96;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.converter-view__page-lock-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 .converter-view__page-lock-btn:hover {
-  background: #667eea;
-  color: white;
+  border-color: #667eea;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.04);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.15);
 }
 .converter-view__page-lock-btn--locked {
-  border-color: #e74c3c;
-  color: #e74c3c;
+  border-color: #667eea;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.08);
 }
 .converter-view__page-lock-btn--locked:hover {
-  background: #e74c3c;
-  color: white;
-  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+  border-color: #e74c3c;
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.08);
+  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.15);
 }
 
 /* 右侧设置面板 */
