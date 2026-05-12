@@ -15,7 +15,7 @@ export const useCardStore = defineStore('card', () => {
   const pageStyles = ref<Array<CardPageStyle | null>>([null])
 
   const currentStyle = ref<CardStyle>('white')
-  const author = ref('你的账号名')
+  const author = ref('AI_小蚂蚁')
   const currentPageIndex = ref(0)
   const autoSplitMax = ref(3)
   const previewScale = ref(0.38)
