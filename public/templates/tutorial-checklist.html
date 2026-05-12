@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教程模板 B - 杂志清单式</title>
+  <link rel="stylesheet" href="../styles/base.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================
+       模板 B: 杂志清单式教程
+       设计语言: 分栏布局 + 信息密度 + 精致间距
+       ========================================== */
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #E8E6E1;
+      padding: 40px;
+    }
+
+    .card-canvas {
+      padding: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- 顶部标签栏 --- */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+    }
+
+    .top-bar__tag {
+      font-size: 12px;
+      font-weight: var(--weight-medium);
+      letter-spacing: var(--tracking-widest);
+      text-transform: uppercase;
+      color: var(--color-accent);
+      padding: 6px 14px;
+      border: 1px solid var(--color-accent);
+    }
+
+    .top-bar__issue {
+      font-family: var(--font-display);
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    /* --- 主标题区 --- */
+    .hero {
+      margin-bottom: var(--space-xl);
+      padding-bottom: var(--space-lg);
+      border-bottom: 1px solid var(--color-divider);
+    }
+
+    .hero__title {
+      font-family: var(--font-serif);
+      font-size: 52px;
+      font-weight: var(--weight-bold);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .hero__lead {
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
+      max-width: 80%;
+    }
+
+    /* --- 清单区域 --- */
+    .checklist {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md) var(--space-xl);
+      padding: 0;
+    }
+
+    .checklist-item {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: flex-start;
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--color-bg-alt);
+    }
+
+    .checklist-item__marker {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border: 1.5px solid var(--color-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 11px;
+      color: var(--color-accent);
+      margin-top: 2px;
+    }
+
+    .checklist-item__text {
+      flex: 1;
+    }
+
+    .checklist-item__title {
+      font-family: var(--font-serif);
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: 4px;
+      line-height: var(--leading-snug);
+    }
+
+    .checklist-item__desc {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      line-height: var(--leading-normal);
+    }
+
+    /* --- 高亮提示框 --- */
+    .highlight-box {
+      margin-top: var(--space-lg);
+      padding: var(--space-md);
+      background: var(--color-highlight);
+      border-left: 3px solid var(--color-accent);
+      grid-column: 1 / -1;
+    }
+
+    .highlight-box__label {
+      font-size: 11px;
+      font-weight: var(--weight-bold);
+      letter-spacing: var(--tracking-widest);
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 8px;
+    }
+
+    .highlight-box__text {
+      font-family: var(--font-serif);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
+      font-style: italic;
+    }
+
+    /* --- 底部 --- */
+    .footer {
+      margin-top: var(--space-lg);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--color-divider);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer__brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .footer__logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: var(--weight-bold);
+    }
+
+    .footer__name {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      letter-spacing: var(--tracking-wide);
+    }
+
+    .footer__cta {
+      font-size: var(--text-xs);
+      color: var(--color-accent);
+      font-weight: var(--weight-medium);
+      letter-spacing: var(--tracking-wide);
+    }
+
+    /* --- 侧边装饰线 --- */
+    .side-accent {
+      position: absolute;
+      top: var(--space-2xl);
+      bottom: var(--space-2xl);
+      left: 32px;
+      width: 2px;
+      background: linear-gradient(to bottom, 
+        transparent, 
+        var(--color-accent-light) 20%, 
+        var(--color-accent) 50%, 
+        var(--color-accent-light) 80%, 
+        transparent
+      );
+      opacity: 0.4;
+    }
+  </style>
+</head>
+<body>
+  <!-- 
+    ============================
+    模板 B: 清单式教程卡片
+    
+    自定义说明:
+    - 配色切换: theme-ivory / theme-minimal / theme-morandi / theme-vintage / theme-navy
+    - 清单项数量建议 6-10 条（双栏布局）
+    - 高亮框可选择保留或删除
+    ============================ 
+  -->
+  <div class="card-canvas theme-morandi texture-paper">
+    <!-- 侧边装饰 -->
+    <div class="side-accent"></div>
+
+    <!-- 顶部 -->
+    <div class="top-bar">
+      <span class="top-bar__tag">实用干货</span>
+      <span class="top-bar__issue">Vol.03</span>
+    </div>
+
+    <!-- 主标题 -->
+    <div class="hero">
+      <h1 class="hero__title">新手修图<br>必知的8个要点</h1>
+      <p class="hero__lead">掌握这些基础原则，让你的照片质感提升一个档次</p>
+    </div>
+
+    <!-- 清单 -->
+    <div class="checklist">
+      <div class="checklist-item">
+        <span class="checklist-item__marker">1</span>
+        <div class="checklist-item__text">
+          <h4 class="checklist-item__title">先校正白平衡</h4>
+          <p class="checklist-item__desc">还原真实色温是一切调色的基础</p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-item__marker">2</span>
+        <div class="checklist-item__text">
+          <h4 class="checklist-item__title">降低高光提亮阴影</h4>
+          <p class="checklist-item__desc">增加画面细节层次，避免过曝死黑</p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-item__marker">3</span>
+        <div class="checklist-item__text">
+          <h4 class="checklist-item__title">适度增加对比度</h4>
+          <p class="checklist-item__desc">提升画面立体感，但不要过度</p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-item__marker">4</span>
+        <div class="checklist-item__text">
+          <h4 class="checklist-item__title">饱和度 < 自然饱和度</h4>
+          <p class="checklist-item__desc">自然饱和度更温和，不会溢色</p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-item__marker">5</span>
+        <div class="checklist-item__text">
+          <h4 class="checklist-item__title">善用 HSL 单独调色</h4>
+          <p class="checklist-item__desc">精准控制每种颜色的色相/饱和/明度</p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-item__marker">6</span>
+        <div class="checklist-item__text">
+          <h4 class="checklist-item__title">加一点点颗粒感</h4>
+          <p class="checklist-item__desc">模拟胶片质感，增加画面氛围</p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-item__marker">7</span>
+        <div class="checklist-item__text">
+          <h4 class="checklist-item__title">裁剪二次构图</h4>
+          <p class="checklist-item__desc">后期裁剪是修图中最被低估的技巧</p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-item__marker">8</span>
+        <div class="checklist-item__text">
+          <h4 class="checklist-item__title">最后才加锐化</h4>
+          <p class="checklist-item__desc">锐化是出图前最后一步，别提前做</p>
+        </div>
+      </div>
+
+      <!-- 高亮提示 -->
+      <div class="highlight-box">
+        <p class="highlight-box__label">Editor's Note</p>
+        <p class="highlight-box__text">"修图的最高境界是让人看不出修过。克制，永远是高级感的来源。"</p>
+      </div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="footer">
+      <div class="footer__brand">
+        <div class="footer__logo">Y</div>
+        <span class="footer__name">你的账号名</span>
+      </div>
+      <span class="footer__cta">收藏 + 关注 ▸</span>
+    </div>
+  </div>
+</body>
+</html>

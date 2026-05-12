@@ -1,0 +1,505 @@
+/* ==========================================
+   卡片渲染器全局样式 - 6 种风格
+   保持全局 unscoped 以确保 html2canvas 兼容
+   ========================================== */
+
+.card {
+  width: 1080px;
+  height: 1440px;
+  position: relative;
+  overflow: hidden;
+  font-size: calc(16px * var(--card-font-scale, 1));
+}
+
+/* 字体 CSS 变量覆盖 */
+.card .card__title {
+  font-family: var(--card-title-font, inherit) !important;
+}
+.card .card__step-title {
+  font-family: var(--card-title-font, inherit) !important;
+}
+.card .card__subtitle,
+.card .card__step-desc,
+.card .card__step-tip,
+.card .card__footer {
+  font-family: var(--card-body-font, inherit) !important;
+  font-weight: var(--card-font-weight, 400);
+}
+.card .card__footer--left {
+  /* 左下角 */
+}
+.card .card__footer--right {
+  /* 右下角 */
+}
+
+/* === 通用行内元素样式 === */
+.card code {
+  display: inline;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.85em;
+  background: rgba(0,0,0,0.06);
+  color: inherit;
+}
+.card--dark code {
+  background: rgba(255,255,255,0.08);
+  color: #00D4AA;
+}
+.card__code-block {
+  display: block;
+  margin: 10px 0;
+  padding: 14px 18px;
+  border-radius: 8px;
+  background: #1E1E1E;
+  color: #D4D4D4;
+  font-family: "JetBrains Mono", monospace;
+  font-size: calc(12px * var(--card-font-scale, 1));
+  line-height: 1.6;
+  overflow-x: auto;
+  position: relative;
+}
+.card--magazine .card__code-block,
+.card--japanese .card__code-block,
+.card--literary .card__code-block,
+.card--vibrant .card__code-block {
+  background: #2D2D2D;
+}
+.card__code-block code {
+  display: block;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  white-space: pre;
+}
+.card__code-lang {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  font-size: calc(10px * var(--card-font-scale, 1));
+  opacity: 0.4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.card .card__step-desc ul,
+.card .card__step-desc ol {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+.card .card__step-desc li {
+  margin-bottom: 4px;
+  line-height: 1.6;
+}
+.card .card__step-desc strong {
+  font-weight: 700;
+}
+.card .card__step-desc em {
+  font-style: italic;
+}
+.card .card__step-desc img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(320px * var(--card-font-scale, 1));
+  border-radius: 12px;
+  margin: calc(10px * var(--card-font-scale, 1)) auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+/* 副标题区域图片支持 */
+.card .card__subtitle img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(160px * var(--card-font-scale, 1));
+  border-radius: 12px;
+  margin: calc(10px * var(--card-font-scale, 1)) auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+/* 提示区域图片支持 */
+.card .card__step-tip img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(140px * var(--card-font-scale, 1));
+  border-radius: 12px;
+  margin: calc(8px * var(--card-font-scale, 1)) auto;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.card__tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  background: rgba(0,0,0,0.04);
+  color: inherit;
+  opacity: 0.7;
+  margin-right: 6px;
+}
+.card--vibrant .card__tag { background: rgba(255,107,107,0.1); color: #FF6B6B; }
+.card--dark .card__tag { background: rgba(201,169,110,0.1); color: #C9A96E; border: 1px solid rgba(201,169,110,0.2); }
+.card--literary .card__tag { background: rgba(181,213,197,0.15); color: #8BA888; }
+.card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+/* 空状态提示 */
+.card__empty-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #CCC;
+  font-size: 14px;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.card__empty-hint p {
+  margin: 0;
+  line-height: 1.8;
+}
+
+/* === 封面卡片专用样式 === */
+.card__cover-card {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 60px 48px;
+  overflow: hidden;
+}
+
+.card__cover-image {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 40px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card__cover-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+}
+
+.card__cover-title {
+  font-family: "Noto Serif SC", serif;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #111;
+  margin: 0;
+}
+
+.card__cover-subtitle {
+  font-size: 20px;
+  color: #666;
+  font-style: italic;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.card__cover-divider {
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #C4A265, #E8D5A3);
+  margin: 10px 0;
+}
+
+.card__cover-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #E8E8E8;
+}
+
+.card__cover-author-label {
+  font-size: 12px;
+  color: #999;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.card__cover-author-name {
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+}
+
+.card__cover-footer-decoration {
+  position: absolute;
+  bottom: 40px;
+  left: 48px;
+  right: 48px;
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  border-top: 1px solid #E8E8E8;
+}
+
+.card__cover-footer-text {
+  font-size: 11px;
+  color: #CCC;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* 杂志风格的封面样式适配 */
+.card--magazine .card__cover-card {
+  background: white;
+}
+
+.card--magazine .card__cover-title {
+  font-family: "Noto Serif SC", serif;
+}
+
+.card__inline-img {
+  display: inline-block;
+  max-width: 100%;
+  max-height: calc(240px * var(--card-font-scale, 1));
+  border-radius: 12px;
+  margin: calc(6px * var(--card-font-scale, 1)) auto;
+  vertical-align: middle;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+.card__header {
+  position: relative;
+  z-index: 1;
+  font-size: calc(11px * var(--card-font-scale, 1));
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 12px;
+}
+.card--dark .card__header { color: #C9A96E; font-family: "Cormorant Garamond", serif; font-style: italic; }
+.card--literary .card__header { color: #8BA888; font-family: "Lora", serif; }
+.card--vibrant .card__header { color: #FF8E53; }
+.card--japanese .card__header { color: #BBB; letter-spacing: 0.3em; }
+.card--magazine .card__header { color: #999; }
+
+/* === 杂志经典 === */
+.card--magazine {
+  background: #FAFAF7;
+  font-family: "Noto Sans SC", sans-serif;
+  color: #1A1A1A;
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+}
+.card--magazine .card__corner { position: absolute; width: 50px; height: 50px; }
+.card--magazine .card__corner--tl { top: 32px; left: 32px; border-top: 1.5px solid #C4A265; border-left: 1.5px solid #C4A265; }
+.card--magazine .card__corner--br { bottom: 32px; right: 32px; border-bottom: 1.5px solid #C4A265; border-right: 1.5px solid #C4A265; }
+.card--magazine .card__category { font-size: calc(12px * var(--card-font-scale, 1)); letter-spacing: 0.2em; text-transform: uppercase; color: #999; margin-bottom: 20px; }
+.card--magazine .card__title { font-family: "Noto Serif SC", serif; font-size: calc(46px * var(--card-font-scale, 1)); font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 16px; }
+.card--magazine .card__title--cover { font-size: calc(56px * var(--card-font-scale, 1)) !important; font-weight: 700 !important; letter-spacing: -0.02em; }
+.card--magazine .card__subtitle { font-size: calc(17px * var(--card-font-scale, 1)); color: #666; margin-bottom: 24px; line-height: 1.6; }
+.card--magazine .card__subtitle--cover { font-size: calc(20px * var(--card-font-scale, 1)) !important; color: #888 !important; font-style: italic; }
+.card--magazine .card__divider { width: 50px; height: 2px; background: #C4A265; margin-bottom: 40px; }
+.card--magazine .card__steps { flex: 1; display: flex; flex-direction: column; gap: 28px; }
+.card--magazine .card__step { display: grid; grid-template-columns: 60px 1fr; gap: 20px; }
+.card--magazine .card__step-num { font-family: "Playfair Display", serif; font-size: calc(48px * var(--card-font-scale, 1)); font-weight: 400; color: rgba(196,162,101,0.5); line-height: 1; }
+.card--magazine .card__step-title { font-family: "Noto Serif SC", serif; font-size: calc(22px * var(--card-font-scale, 1)); font-weight: 600; margin-bottom: 6px; }
+.card--magazine .card__step-desc { font-size: calc(15px * var(--card-font-scale, 1)); color: #666; line-height: 1.8; }
+.card--magazine .card__step-tip { margin-top: 8px; padding: 10px 14px; background: #F5E6CC; border-radius: 4px; font-size: calc(13px * var(--card-font-scale, 1)); color: #666; }
+.card--magazine .card__footer { margin-top: auto; padding-top: 24px; border-top: 1px solid #E0DDD6; display: flex; justify-content: space-between; font-size: calc(13px * var(--card-font-scale, 1)); color: #999; }
+
+/* === 活力元气 === */
+.card--vibrant {
+  background: #FFF8F0;
+  font-family: "Noto Sans SC", sans-serif;
+  color: #2D2D2D;
+  padding: 56px;
+  display: flex;
+  flex-direction: column;
+}
+.card--vibrant .card__deco { position: absolute; border-radius: 50%; pointer-events: none; }
+.card--vibrant .card__deco--1 { width: 300px; height: 300px; top: -80px; right: -60px; background: #FFE0B2; opacity: 0.6; }
+.card--vibrant .card__deco--2 { width: 200px; height: 200px; bottom: 100px; left: -60px; background: #C8E6C9; opacity: 0.5; }
+.card--vibrant .card__category { position: relative; z-index: 1; font-size: calc(36px * var(--card-font-scale, 1)); margin-bottom: 12px; }
+.card--vibrant .card__title { position: relative; z-index: 1; font-family: "Fredoka", "Noto Sans SC"; font-size: calc(46px * var(--card-font-scale, 1)); font-weight: 700; line-height: 1.15; margin-bottom: 10px; }
+.card--vibrant .card__title em { font-style: normal; background: linear-gradient(120deg, #FF6B6B, #FF8E53); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.card--vibrant .card__subtitle { position: relative; z-index: 1; font-size: calc(16px * var(--card-font-scale, 1)); color: #777; margin-bottom: 32px; }
+.card--vibrant .card__steps { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+.card--vibrant .card__step { display: flex; gap: 16px; align-items: flex-start; padding: 20px; border-radius: 16px; background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+.card--vibrant .card__step-num { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: "Fredoka"; font-size: calc(18px * var(--card-font-scale, 1)); font-weight: 700; color: white; }
+.card--vibrant .card__step:nth-child(1) .card__step-num { background: linear-gradient(135deg, #FF6B6B, #FF8E53); }
+.card--vibrant .card__step:nth-child(2) .card__step-num { background: linear-gradient(135deg, #A8E063, #56AB2F); }
+.card--vibrant .card__step:nth-child(3) .card__step-num { background: linear-gradient(135deg, #667EEA, #764BA2); }
+.card--vibrant .card__step:nth-child(4) .card__step-num { background: linear-gradient(135deg, #F093FB, #F5576C); }
+.card--vibrant .card__step:nth-child(5) .card__step-num { background: linear-gradient(135deg, #4FACFE, #00F2FE); }
+.card--vibrant .card__step:nth-child(n+6) .card__step-num { background: linear-gradient(135deg, #43E97B, #38F9D7); }
+.card--vibrant .card__step-title { font-size: calc(18px * var(--card-font-scale, 1)); font-weight: 700; margin-bottom: 4px; }
+.card--vibrant .card__step-desc { font-size: calc(14px * var(--card-font-scale, 1)); color: #777; line-height: 1.6; }
+.card--vibrant .card__step-tip { margin-top: 6px; font-size: calc(12px * var(--card-font-scale, 1)); color: #FF8E53; font-weight: 500; }
+.card--vibrant .card__footer { position: relative; z-index: 1; margin-top: 24px; display: flex; justify-content: space-between; align-items: center; font-size: calc(14px * var(--card-font-scale, 1)); color: #999; }
+.card--vibrant .card__footer-cta { padding: 10px 24px; border-radius: 24px; background: linear-gradient(135deg, #FF6B6B, #FF8E53); color: white; font-size: calc(13px * var(--card-font-scale, 1)); font-weight: 600; }
+
+/* === 暗黑高级 === */
+.card--dark {
+  background: #0C0C0C;
+  font-family: "Noto Sans SC", sans-serif;
+  color: #F0F0F0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.card--dark .card__gold-line { width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #C9A96E, #E8D5A3, #C9A96E, transparent); }
+.card--dark .card__inner { flex: 1; padding: 56px 64px; margin: 20px; border: 1px solid #1F1F1F; display: flex; flex-direction: column; }
+.card--dark .card__category { font-family: "Cormorant Garamond", serif; font-size: calc(14px * var(--card-font-scale, 1)); font-style: italic; color: #C9A96E; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 24px; }
+.card--dark .card__title { font-family: "Noto Serif SC", serif; font-size: calc(42px * var(--card-font-scale, 1)); font-weight: 700; line-height: 1.2; margin-bottom: 24px; }
+.card--dark .card__title em { font-style: normal; color: #C9A96E; }
+.card--dark .card__subtitle { font-size: calc(15px * var(--card-font-scale, 1)); color: #888; margin-bottom: 32px; line-height: 1.7; }
+.card--dark .card__divider { width: 50px; height: 1px; background: #C9A96E; margin-bottom: 32px; }
+.card--dark .card__steps { flex: 1; display: flex; flex-direction: column; gap: 28px; }
+.card--dark .card__step { display: grid; grid-template-columns: 36px 1fr; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid #1A1A1A; }
+.card--dark .card__step:last-child { border-bottom: none; }
+.card--dark .card__step-num { font-family: "Cormorant Garamond", serif; font-size: calc(28px * var(--card-font-scale, 1)); font-weight: 300; color: #C9A96E; }
+.card--dark .card__step-title { font-family: "Noto Serif SC", serif; font-size: calc(21px * var(--card-font-scale, 1)); font-weight: 600; margin-bottom: 8px; color: #EEE; }
+.card--dark .card__step-desc { font-size: calc(14px * var(--card-font-scale, 1)); color: #888; line-height: 1.8; }
+.card--dark .card__step-tip { display: inline-block; margin-top: 10px; padding: 5px 14px; border: 1px solid #333; font-size: calc(12px * var(--card-font-scale, 1)); color: #C9A96E; }
+.card--dark .card__footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #1A1A1A; display: flex; justify-content: space-between; font-size: calc(12px * var(--card-font-scale, 1)); color: #555; }
+
+/* === 日系简约 === */
+.card--japanese {
+  background: #FEFEFE;
+  font-family: "Noto Sans SC", sans-serif;
+  color: #333;
+  padding: 80px 72px;
+  display: flex;
+  flex-direction: column;
+}
+.card--japanese .card__category { font-size: calc(11px * var(--card-font-scale, 1)); letter-spacing: 0.3em; color: #BBB; text-transform: uppercase; margin-bottom: 24px; }
+.card--japanese .card__title { font-size: calc(38px * var(--card-font-scale, 1)); font-weight: 300; line-height: 1.4; letter-spacing: 0.05em; color: #222; margin-bottom: 32px; }
+.card--japanese .card__title em { font-style: normal; font-weight: 500; }
+.card--japanese .card__divider { width: 100%; height: 1px; background: #E8E8E8; margin-bottom: 48px; }
+.card--japanese .card__steps { flex: 1; display: flex; flex-direction: column; gap: 36px; }
+.card--japanese .card__step { padding-left: 24px; border-left: 1px solid #E0E0E0; position: relative; }
+.card--japanese .card__step::before { content: ''; position: absolute; left: -3.5px; top: 6px; width: 6px; height: 6px; border-radius: 50%; background: #CCC; }
+.card--japanese .card__step-title { font-size: calc(19px * var(--card-font-scale, 1)); font-weight: 500; margin-bottom: 8px; letter-spacing: 0.02em; }
+.card--japanese .card__step-desc { font-size: calc(14px * var(--card-font-scale, 1)); color: #888; line-height: 1.9; font-weight: 300; }
+.card--japanese .card__step-tip { font-size: calc(12px * var(--card-font-scale, 1)); color: #BBB; margin-top: 6px; font-style: italic; }
+.card--japanese .card__footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #E8E8E8; display: flex; justify-content: space-between; font-size: calc(12px * var(--card-font-scale, 1)); color: #CCC; letter-spacing: 0.1em; }
+
+/* === 文艺清新 === */
+.card--literary {
+  background: #F9F7F2;
+  font-family: "Noto Sans SC", sans-serif;
+  color: #3D3D3D;
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.card--literary .card__watercolor { position: absolute; border-radius: 50%; opacity: 0.12; filter: blur(40px); pointer-events: none; }
+.card--literary .card__watercolor--1 { width: 400px; height: 400px; top: -100px; right: -100px; background: #B5D5C5; }
+.card--literary .card__watercolor--2 { width: 250px; height: 250px; bottom: 80px; left: -80px; background: #F2C4C4; }
+.card--literary .card__category { position: relative; z-index: 1; font-family: "Lora", serif; font-size: calc(14px * var(--card-font-scale, 1)); font-style: italic; color: #8BA888; margin-bottom: 16px; letter-spacing: 0.1em; }
+.card--literary .card__title { position: relative; z-index: 1; font-family: "Noto Serif SC", serif; font-size: calc(40px * var(--card-font-scale, 1)); font-weight: 600; line-height: 1.3; color: #2D3B2D; margin-bottom: 14px; }
+.card--literary .card__subtitle { position: relative; z-index: 1; font-size: calc(15px * var(--card-font-scale, 1)); color: #777; line-height: 1.8; margin-bottom: 24px; }
+.card--literary .card__divider { position: relative; z-index: 1; width: 100%; height: 1px; background: linear-gradient(90deg, #B5D5C5, transparent 60%); margin-bottom: 36px; }
+.card--literary .card__steps { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+.card--literary .card__step { padding: 22px 24px; background: rgba(255,255,255,0.6); border-radius: 12px; border: 1px solid rgba(181,213,197,0.3); }
+.card--literary .card__step-title { font-family: "Noto Serif SC", serif; font-size: calc(19px * var(--card-font-scale, 1)); font-weight: 600; color: #2D3B2D; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.card--literary .card__step-title::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #B5D5C5; flex-shrink: 0; }
+.card--literary .card__step-desc { font-size: calc(14px * var(--card-font-scale, 1)); color: #666; line-height: 1.9; padding-left: 16px; }
+.card--literary .card__step-tip { margin-top: 10px; padding: 8px 14px; border-left: 2px solid #B5D5C5; font-family: "Noto Serif SC"; font-size: calc(13px * var(--card-font-scale, 1)); color: #8BA888; font-style: italic; margin-left: 16px; }
+.card--literary .card__footer { position: relative; z-index: 1; margin-top: 24px; text-align: center; font-size: calc(13px * var(--card-font-scale, 1)); color: #AAA; }
+
+/* === 极简黑白 · 数字衬底 === */
+.card--minimal {
+  background: #FFFFFF;
+  font-family: "Noto Sans SC", "Inter", sans-serif;
+  color: #111;
+  padding: 72px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.card--minimal .card__watermark { position: absolute; top: 40px; right: 40px; font-size: calc(180px * var(--card-font-scale, 1)); font-weight: 700; color: #F5F5F5; line-height: 1; pointer-events: none; user-select: none; z-index: 0; }
+.card--minimal .card__header { position: relative; z-index: 1; font-size: calc(11px * var(--card-font-scale, 1)); letter-spacing: 0.2em; text-transform: uppercase; color: #999; margin-bottom: 16px; }
+.card--minimal .card__category { position: relative; z-index: 1; font-size: calc(12px * var(--card-font-scale, 1)); letter-spacing: 0.15em; color: #BBB; margin-bottom: 24px; }
+.card--minimal .card__title { position: relative; z-index: 1; font-size: calc(44px * var(--card-font-scale, 1)); font-weight: 300; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 16px; }
+.card--minimal .card__subtitle { position: relative; z-index: 1; font-size: calc(16px * var(--card-font-scale, 1)); color: #888; margin-bottom: 40px; line-height: 1.6; }
+.card--minimal .card__divider { position: relative; z-index: 1; width: 40px; height: 1px; background: #DDD; margin-bottom: 40px; }
+.card--minimal .card__steps { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; gap: 32px; }
+.card--minimal .card__step { display: flex; gap: 20px; align-items: flex-start; }
+.card--minimal .card__step-num { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 1px solid #DDD; display: flex; align-items: center; justify-content: center; font-size: calc(13px * var(--card-font-scale, 1)); color: #999; }
+.card--minimal .card__step-title { font-size: calc(18px * var(--card-font-scale, 1)); font-weight: 500; margin-bottom: 6px; color: #222; }
+.card--minimal .card__step-desc { font-size: calc(15px * var(--card-font-scale, 1)); color: #666; line-height: 1.8; }
+.card--minimal .card__step-tip { margin-top: 8px; font-size: calc(13px * var(--card-font-scale, 1)); color: #AAA; }
+.card--minimal .card__tags { position: relative; z-index: 1; margin-top: 20px; }
+.card--minimal .card__tag { background: none; border: 1px solid #E5E5E5; color: #999; border-radius: 4px; padding: 2px 10px; }
+.card--minimal .card__footer { position: relative; z-index: 1; margin-top: auto; padding-top: 32px; border-top: 1px solid #EEE; display: flex; justify-content: space-between; font-size: calc(12px * var(--card-font-scale, 1)); color: #CCC; letter-spacing: 0.05em; }
+
+/* === 封面图（通用）=== */
+.card__cover-img {
+  width: 100%;
+  max-height: calc(640px * var(--card-font-scale, 1));
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: calc(24px * var(--card-font-scale, 1));
+  display: block;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* === 奶白衬线 · 清雅书卷 === */
+.card--white {
+  background: #FDFCF7;
+  font-family: "Noto Serif SC", "Source Han Serif", "SimSun", serif;
+  color: #1A1A1A;
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+}
+.card--white .card__header { color: #A89070; font-size: calc(11px * var(--card-font-scale, 1)); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 16px; }
+.card--white .card__category { font-size: calc(12px * var(--card-font-scale, 1)); letter-spacing: 0.2em; color: #B0A090; text-transform: uppercase; margin-bottom: 20px; }
+.card--white .card__title { font-size: calc(42px * var(--card-font-scale, 1)); font-weight: 600; line-height: 1.25; letter-spacing: 0.01em; margin-bottom: 16px; color: #1A1A1A; }
+.card--white .card__subtitle { font-size: calc(16px * var(--card-font-scale, 1)); color: #6A5A4A; margin-bottom: 24px; line-height: 1.7; font-style: italic; }
+.card--white .card__divider { width: 48px; height: 1px; background: #C8B89A; margin-bottom: 36px; }
+.card--white .card__steps { flex: 1; display: flex; flex-direction: column; gap: 28px; }
+.card--white .card__step { display: grid; grid-template-columns: 48px 1fr; gap: 16px; padding-bottom: 24px; border-bottom: 1px solid #EDE8E0; }
+.card--white .card__step:last-child { border-bottom: none; }
+.card--white .card__step-num { font-size: calc(13px * var(--card-font-scale, 1)); color: #C8B89A; letter-spacing: 0.1em; line-height: 1.6; padding-top: 3px; text-align: right; }
+.card--white .card__step-title { font-size: calc(20px * var(--card-font-scale, 1)); font-weight: 600; margin-bottom: 6px; color: #1A1A1A; letter-spacing: 0.01em; }
+.card--white .card__step-desc { font-size: calc(15px * var(--card-font-scale, 1)); color: #5A4A3A; line-height: 1.85; }
+.card--white .card__step-tip { margin-top: 10px; padding: 10px 16px; background: #F5F0E8; border-left: 2px solid #C8B89A; font-size: calc(13px * var(--card-font-scale, 1)); color: #7A6A5A; font-style: italic; }
+.card--white .card__tags { margin-top: 12px; }
+.card--white .card__tag { background: rgba(200,184,154,0.12); color: #9A8A7A; border: 1px solid rgba(200,184,154,0.3); border-radius: 4px; }
+.card--white .card__footer { margin-top: auto; padding-top: 24px; border-top: 1px solid #EDE8E0; display: flex; justify-content: space-between; font-size: calc(12px * var(--card-font-scale, 1)); color: #B0A090; letter-spacing: 0.05em; }
+
+/* === 纯奶牛白 · 极致纯净 === */
+.card--purewhite {
+  background: #FFFFFF;
+  font-family: "Noto Sans SC", "Inter", sans-serif;
+  color: #0A0A0A;
+  padding: 72px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.card--purewhite .card__header { font-size: calc(11px * var(--card-font-scale, 1)); letter-spacing: 0.2em; text-transform: uppercase; color: #B8B8B8; margin-bottom: 20px; font-weight: 500; }
+.card--purewhite .card__category { font-size: calc(12px * var(--card-font-scale, 1)); letter-spacing: 0.2em; color: #A0A0A0; text-transform: uppercase; margin-bottom: 24px; font-weight: 600; }
+.card--purewhite .card__title { font-size: calc(48px * var(--card-font-scale, 1)); font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 16px; color: #0A0A0A; }
+.card--purewhite .card__subtitle { font-size: calc(17px * var(--card-font-scale, 1)); color: #666; margin-bottom: 36px; line-height: 1.7; }
+.card--purewhite .card__divider { width: 48px; height: 2px; background: linear-gradient(90deg, #0A0A0A, #333); margin-bottom: 44px; }
+.card--purewhite .card__steps { flex: 1; display: flex; flex-direction: column; gap: 40px; }
+.card--purewhite .card__step { display: flex; gap: 28px; align-items: flex-start; padding-bottom: 36px; border-bottom: 1px solid #E8E8E8; }
+.card--purewhite .card__step:last-child { border-bottom: none; padding-bottom: 0; }
+.card--purewhite .card__step-num { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; background: #0A0A0A; display: flex; align-items: center; justify-content: center; font-size: calc(15px * var(--card-font-scale, 1)); color: #FFFFFF; font-weight: 600; }
+.card--purewhite .card__step-title { font-size: calc(20px * var(--card-font-scale, 1)); font-weight: 600; margin-bottom: 10px; color: #0A0A0A; letter-spacing: -0.01em; }
+.card--purewhite .card__step-desc { font-size: calc(16px * var(--card-font-scale, 1)); color: #555; line-height: 1.85; }
+.card--purewhite .card__step-tip { margin-top: 12px; padding: 12px 18px; background: #FAFAFA; border-left: 3px solid #0A0A0A; font-size: calc(14px * var(--card-font-scale, 1)); color: #444; }
+.card--purewhite .card__tags { margin-top: 18px; }
+.card--purewhite .card__tag { background: #0A0A0A; color: #FFFFFF; border-radius: 6px; padding: 4px 14px; font-size: calc(12px * var(--card-font-scale, 1)); font-weight: 500; }
+.card--purewhite .card__footer { margin-top: auto; padding-top: 36px; border-top: 2px solid #0A0A0A; display: flex; justify-content: space-between; font-size: calc(13px * var(--card-font-scale, 1)); color: #888; letter-spacing: 0.08em; font-weight: 500; }

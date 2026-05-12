@@ -1,0 +1,45 @@
+<template>
+  <div class="card__gold-line"></div>
+  <div class="card__inner">
+    <div v-if="headerText" class="card__header">{{ headerText }}</div>
+    <div class="card__category">{{ data.category }}</div>
+    <h1 class="card__title" v-html="formattedTitle"></h1>
+    <p v-if="data.subtitle" class="card__subtitle" v-html="data.subtitle"></p>
+    <div class="card__divider"></div>
+    <div class="card__steps">
+      <div v-for="(step, idx) in data.steps" :key="idx" class="card__step">
+        <span class="card__step-num">{{ ROMAN_NUMERALS[idx] || idx + 1 }}</span>
+        <div>
+          <div class="card__step-title">{{ step.title }}</div>
+          <div class="card__step-desc" v-html="step.desc"></div>
+          <div v-if="step.tip" class="card__step-tip" v-html="step.tip"></div>
+        </div>
+      </div>
+    </div>
+    <div v-if="data.tags.length" class="card__tags">
+      <span v-for="tag in data.tags" :key="tag" class="card__tag">#{{ tag }}</span>
+    </div>
+    <div class="card__footer" v-if="author || page">
+      <span v-if="author">@{{ author }}</span>
+      <span v-if="page">{{ page }}</span>
+    </div>
+  </div>
+  <div class="card__gold-line"></div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import type { CardData } from '@/types/card'
+import { ROMAN_NUMERALS } from '@/utils/helpers'
+import { formatDarkTitle } from '@/utils/titleFormatters'
+
+const props = defineProps<{
+  data: CardData
+  author: string
+  page: string
+  headerText?: string
+  footerSlogan?: string
+}>()
+
+const formattedTitle = computed(() => formatDarkTitle(props.data.title))
+</script>

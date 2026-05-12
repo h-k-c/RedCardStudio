@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>科技干练风 - 知识卡</title>
+  <link rel="stylesheet" href="../styles/base.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; background: #0A0A0A; padding: 40px;
+    }
+    .card-canvas {
+      --c-bg: #111111; --c-surface: #1A1A1A; --c-border: #2A2A2A;
+      --c-accent: #6C5CE7; --c-accent2: #00B894;
+      --c-text: #FFFFFF; --c-text2: #AAAAAA; --c-text3: #666;
+      width: var(--canvas-width); height: var(--canvas-height);
+      background: var(--c-bg); color: var(--c-text);
+      padding: 56px; display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+      font-family: "Noto Sans SC", "Inter", sans-serif;
+    }
+    .noise {
+      position: absolute; inset: 0; opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .gradient-orb {
+      position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      filter: blur(80px); opacity: 0.15; pointer-events: none;
+    }
+    .gradient-orb--1 { top: -100px; left: -100px; background: var(--c-accent); }
+    .gradient-orb--2 { bottom: -150px; right: -100px; background: var(--c-accent2); }
+
+    .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; position: relative; z-index: 1; }
+    .top__badge {
+      font-family: "JetBrains Mono", monospace; font-size: 11px;
+      padding: 5px 12px; background: rgba(108,92,231,0.15);
+      border: 1px solid rgba(108,92,231,0.3); color: var(--c-accent);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .top__num { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--c-text3); }
+
+    .title-block { position: relative; z-index: 1; margin-bottom: 48px; }
+    .title-block h1 {
+      font-family: "Inter", "Noto Sans SC"; font-size: 42px; font-weight: 800;
+      line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 16px;
+    }
+    .title-block h1 em { font-style: normal; color: var(--c-accent); }
+    .title-block p { font-size: 16px; color: var(--c-text2); line-height: 1.7; max-width: 85%; }
+
+    .cards-grid {
+      flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; position: relative; z-index: 1;
+    }
+    .info-card {
+      background: var(--c-surface); border: 1px solid var(--c-border);
+      border-radius: 12px; padding: 28px; display: flex; flex-direction: column;
+    }
+    .info-card__icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(108,92,231,0.12); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 16px; margin-bottom: 16px;
+    }
+    .info-card__title {
+      font-size: 18px; font-weight: 700; margin-bottom: 8px;
+      font-family: "Inter", "Noto Sans SC";
+    }
+    .info-card__desc {
+      font-size: 13px; color: var(--c-text2); line-height: 1.7; flex: 1;
+    }
+    .info-card__tag {
+      margin-top: 12px; font-family: "JetBrains Mono", monospace;
+      font-size: 11px; color: var(--c-accent2);
+    }
+
+    .footer {
+      position: relative; z-index: 1; margin-top: 32px; padding-top: 20px;
+      border-top: 1px solid var(--c-border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer span { font-size: 12px; color: var(--c-text3); font-family: "JetBrains Mono", monospace; }
+  </style>
+</head>
+<body>
+  <div class="card-canvas">
+    <div class="noise"></div>
+    <div class="gradient-orb gradient-orb--1"></div>
+    <div class="gradient-orb gradient-orb--2"></div>
+
+    <div class="top">
+      <span class="top__badge">Frontend</span>
+      <span class="top__num">#042</span>
+    </div>
+
+    <div class="title-block">
+      <h1>CSS 布局<br><em>四大核心</em>概念</h1>
+      <p>掌握这四种布局模式，解决 90% 的页面排版问题</p>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card__icon">📦</div>
+        <h3 class="info-card__title">Flexbox</h3>
+        <p class="info-card__desc">一维布局之王，处理行或列方向的元素排列与对齐</p>
+        <span class="info-card__tag">→ 导航栏、卡片列表</span>
+      </div>
+      <div class="info-card">
+        <div class="info-card__icon">🔲</div>
+        <h3 class="info-card__title">Grid</h3>
+        <p class="info-card__desc">二维布局利器，同时控制行和列的复杂网格系统</p>
+        <span class="info-card__tag">→ 仪表盘、图片墙</span>
+      </div>
+      <div class="info-card">
+        <div class="info-card__icon">📐</div>
+        <h3 class="info-card__title">Position</h3>
+        <p class="info-card__desc">精确定位元素，脱离文档流实现悬浮、固定效果</p>
+        <span class="info-card__tag">→ 弹窗、吸顶导航</span>
+      </div>
+      <div class="info-card">
+        <div class="info-card__icon">🌊</div>
+        <h3 class="info-card__title">Container Query</h3>
+        <p class="info-card__desc">基于容器尺寸响应式，组件级自适应布局的未来</p>
+        <span class="info-card__tag">→ 可复用组件</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>@your_handle</span>
+      <span>SAVE & SHARE ▸</span>
+    </div>
+  </div>
+</body>
+</html>

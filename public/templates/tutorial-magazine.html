@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教程模板 C - 杂志内页深度版</title>
+  <link rel="stylesheet" href="../styles/base.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================
+       模板 C: 杂志内页深度教程
+       设计语言: 经典杂志排版 + 左右分栏 + 边注
+       ========================================== */
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #E8E6E1;
+      padding: 40px;
+    }
+
+    .card-canvas {
+      padding: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    /* --- 杂志头部 --- */
+    .magazine-header {
+      padding: var(--space-lg) var(--space-xl);
+      border-bottom: 2px solid var(--color-text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .magazine-header__name {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-bold);
+      letter-spacing: var(--tracking-wide);
+      color: var(--color-text-primary);
+    }
+
+    .magazine-header__meta {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--color-text-muted);
+      letter-spacing: var(--tracking-wider);
+      text-transform: uppercase;
+    }
+
+    /* --- 内容主体 --- */
+    .content-body {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0;
+    }
+
+    /* 左侧栏 (边注) */
+    .sidebar {
+      padding: var(--space-xl) var(--space-md) var(--space-xl) var(--space-xl);
+      border-right: 1px solid var(--color-divider);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xl);
+    }
+
+    .sidebar__section {
+      /* empty container */
+    }
+
+    .sidebar__label {
+      font-size: 10px;
+      font-weight: var(--weight-bold);
+      letter-spacing: var(--tracking-widest);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-xs);
+    }
+
+    .sidebar__value {
+      font-family: var(--font-serif);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    .sidebar__number {
+      font-family: "Cormorant Garamond", var(--font-display);
+      font-size: 72px;
+      font-weight: 300;
+      color: var(--color-accent-light);
+      line-height: 1;
+    }
+
+    /* 右侧主内容 */
+    .main-content {
+      padding: var(--space-xl) var(--space-xl) var(--space-xl) var(--space-lg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content__title {
+      font-family: var(--font-serif);
+      font-size: 44px;
+      font-weight: var(--weight-bold);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-md);
+    }
+
+    .main-content__intro {
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-lg);
+      border-bottom: 1px solid var(--color-divider);
+    }
+
+    /* 教程段落 */
+    .section {
+      margin-bottom: var(--space-lg);
+    }
+
+    .section__heading {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-sm);
+    }
+
+    .section__num {
+      font-family: "Cormorant Garamond", var(--font-display);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--color-accent);
+      line-height: 1;
+    }
+
+    .section__title {
+      font-family: var(--font-serif);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .section__body {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
+      padding-left: 44px;
+    }
+
+    .section__emphasis {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 3px 10px;
+      background: var(--color-highlight);
+      font-weight: var(--weight-medium);
+      color: var(--color-text-primary);
+      font-size: var(--text-xs);
+    }
+
+    /* --- 底部 --- */
+    .magazine-footer {
+      padding: var(--space-md) var(--space-xl);
+      border-top: 2px solid var(--color-text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .magazine-footer__left {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      letter-spacing: var(--tracking-wider);
+      text-transform: uppercase;
+    }
+
+    .magazine-footer__page {
+      font-family: "Cormorant Garamond", var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 300;
+      color: var(--color-text-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- 
+    ============================
+    模板 C: 杂志内页深度教程
+    
+    自定义说明:
+    - 适合内容密度较高的深度教程
+    - 左侧栏用于放置辅助信息 (难度/时长/工具等)
+    - 右侧为主要教程内容
+    - 配色切换: theme-ivory / theme-minimal / theme-morandi / theme-vintage / theme-navy
+    ============================ 
+  -->
+  <div class="card-canvas theme-vintage texture-paper">
+    <!-- 杂志头部 -->
+    <div class="magazine-header">
+      <span class="magazine-header__name">CREATIVE GUIDE</span>
+      <span class="magazine-header__meta">Issue 07 · 2024</span>
+    </div>
+
+    <!-- 内容主体 -->
+    <div class="content-body">
+      <!-- 左侧边栏 -->
+      <aside class="sidebar">
+        <div class="sidebar__section">
+          <p class="sidebar__label">难度</p>
+          <p class="sidebar__value">入门级</p>
+        </div>
+        <div class="sidebar__section">
+          <p class="sidebar__label">预计时长</p>
+          <p class="sidebar__value">5 分钟</p>
+        </div>
+        <div class="sidebar__section">
+          <p class="sidebar__label">所需工具</p>
+          <p class="sidebar__value">Lightroom<br>或 Snapseed</p>
+        </div>
+        <div class="sidebar__section">
+          <span class="sidebar__number">03</span>
+          <p class="sidebar__label" style="margin-top: 8px;">核心要点</p>
+        </div>
+      </aside>
+
+      <!-- 右侧主内容 -->
+      <main class="main-content">
+        <h1 class="main-content__title">色调统一感<br>是怎样炼成的</h1>
+        <p class="main-content__intro">很多人修图时只关注单张效果，却忽略了整组图片的色调一致性。统一的视觉语言才是个人风格的基础。</p>
+
+        <div class="section">
+          <div class="section__heading">
+            <span class="section__num">I</span>
+            <h3 class="section__title">确定色彩基调</h3>
+          </div>
+          <p class="section__body">
+            先决定整体偏暖还是偏冷。选定一个主色调后，所有图片的白平衡和色温保持在同一范围内。
+            <span class="section__emphasis">色温浮动不超过 ±200K</span>
+          </p>
+        </div>
+
+        <div class="section">
+          <div class="section__heading">
+            <span class="section__num">II</span>
+            <h3 class="section__title">建立预设模板</h3>
+          </div>
+          <p class="section__body">
+            将调好的参数存为预设，后续图片先套预设再微调。重点保持：色调曲线、HSL 参数、分离色调三项一致。
+          </p>
+        </div>
+
+        <div class="section">
+          <div class="section__heading">
+            <span class="section__num">III</span>
+            <h3 class="section__title">统一画面明度</h3>
+          </div>
+          <p class="section__body">
+            控制曝光范围在相近区间。过亮或过暗的单张会破坏整体节奏。建议用直方图辅助判断，确保高光和暗部端点位置接近。
+            <span class="section__emphasis">直方图形态保持 70% 相似度</span>
+          </p>
+        </div>
+      </main>
+    </div>
+
+    <!-- 底部 -->
+    <div class="magazine-footer">
+      <span class="magazine-footer__left">@ 你的账号名 · 收藏备用</span>
+      <span class="magazine-footer__page">02</span>
+    </div>
+  </div>
+</body>
+</html>

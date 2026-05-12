@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>日系简约风 - 教程</title>
+  <link rel="stylesheet" href="../styles/base.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; background: #D4D0C8; padding: 40px;
+    }
+    .card-canvas {
+      width: var(--canvas-width); height: var(--canvas-height);
+      background: #FEFEFE;
+      padding: 80px 72px;
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+      font-family: "Noto Sans SC", "Zen Kaku Gothic New", sans-serif;
+      color: #333;
+    }
+
+    .header { margin-bottom: 56px; }
+    .header__label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.3em; color: #BBB;
+      text-transform: uppercase; margin-bottom: 24px;
+    }
+    .header__title {
+      font-size: 38px; font-weight: 300; line-height: 1.4;
+      letter-spacing: 0.05em; color: #222;
+    }
+    .header__title strong { font-weight: 500; }
+    .header__line {
+      width: 100%; height: 1px; background: #E8E8E8; margin-top: 32px;
+    }
+
+    .steps {
+      flex: 1; display: flex; flex-direction: column; gap: 40px;
+    }
+    .step {
+      display: grid; grid-template-columns: 1fr; gap: 8px;
+      padding-left: 28px; border-left: 1px solid #E0E0E0;
+      position: relative;
+    }
+    .step::before {
+      content: ''; position: absolute; left: -4px; top: 6px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #CCCCCC;
+    }
+    .step__title {
+      font-size: 20px; font-weight: 500; color: #333;
+      letter-spacing: 0.02em;
+    }
+    .step__desc {
+      font-size: 14px; color: #888; line-height: 1.9;
+      font-weight: 300; letter-spacing: 0.02em;
+    }
+    .step__note {
+      font-size: 12px; color: #BBB; margin-top: 4px;
+      font-style: italic;
+    }
+
+    .footer {
+      margin-top: 48px; padding-top: 24px;
+      border-top: 1px solid #E8E8E8;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer__left { font-size: 12px; color: #CCC; letter-spacing: 0.1em; }
+    .footer__right { font-size: 12px; color: #CCC; }
+  </style>
+</head>
+<body>
+  <div class="card-canvas">
+    <div class="header">
+      <p class="header__label">Minimal Living</p>
+      <h1 class="header__title"><strong>断舍离</strong>的<br>正确打开方式</h1>
+      <div class="header__line"></div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <h3 class="step__title">从一个抽屉开始</h3>
+        <p class="step__desc">不要试图一次整理全家。选一个最小的空间，花 15 分钟完成它。小胜利会带来动力。</p>
+      </div>
+      <div class="step">
+        <h3 class="step__title">问自己三个问题</h3>
+        <p class="step__desc">这件物品上次使用是什么时候？没有它我会怎样？它让我感到愉悦吗？</p>
+        <p class="step__note">* 如果犹豫超过 5 秒，大概率不需要</p>
+      </div>
+      <div class="step">
+        <h3 class="step__title">一进一出原则</h3>
+        <p class="step__desc">买一件新的，就送走一件旧的。维持物品总量恒定，是最简单的防堆积方法。</p>
+      </div>
+      <div class="step">
+        <h3 class="step__title">留白是一种奢侈</h3>
+        <p class="step__desc">空出来的空间不要急着填满。留白本身就是美，也是给未来预留的呼吸感。</p>
+      </div>
+      <div class="step">
+        <h3 class="step__title">数字空间同理</h3>
+        <p class="step__desc">清理手机 App、退订不看的公众号、整理相册。数字断舍离同样解放注意力。</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="footer__left">@ 你的账号名</span>
+      <span class="footer__right">01 / 05</span>
+    </div>
+  </div>
+</body>
+</html>

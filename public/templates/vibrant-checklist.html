@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>活力元气风 - 清单式</title>
+  <link rel="stylesheet" href="../styles/base.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; background: #FFF0F5; padding: 40px;
+    }
+    .card-canvas {
+      width: var(--canvas-width); height: var(--canvas-height);
+      background: linear-gradient(180deg, #FFFDF7 0%, #FFF5F5 100%);
+      padding: 56px;
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+      font-family: "Noto Sans SC", sans-serif;
+    }
+
+    /* 背景 blob */
+    .blob {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      filter: blur(60px);
+    }
+    .blob--1 { width: 350px; height: 350px; top: -80px; left: -80px; background: #FFD3E0; opacity: 0.5; }
+    .blob--2 { width: 280px; height: 280px; bottom: 50px; right: -60px; background: #D4EDFF; opacity: 0.5; }
+
+    .header { position: relative; z-index: 1; text-align: center; margin-bottom: 36px; }
+    .header__icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 64px; height: 64px; border-radius: 20px;
+      background: linear-gradient(135deg, #FF9A9E, #FAD0C4);
+      font-size: 28px; margin-bottom: 16px;
+    }
+    .header__title {
+      font-family: "Fredoka", "Noto Sans SC"; font-size: 44px; font-weight: 700;
+      line-height: 1.2; color: #333;
+    }
+    .header__sub { font-size: 16px; color: #888; margin-top: 10px; }
+
+    .list { flex: 1; display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1; }
+    .list-item {
+      display: flex; align-items: center; gap: 16px;
+      padding: 18px 24px; border-radius: 16px;
+      background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .list-item__emoji { font-size: 24px; flex-shrink: 0; }
+    .list-item__text { flex: 1; }
+    .list-item__title { font-size: 17px; font-weight: 700; color: #333; }
+    .list-item__desc { font-size: 13px; color: #888; margin-top: 3px; }
+    .list-item__check {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid #E0E0E0; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .list-item__check--done {
+      border-color: #4CAF50; background: #4CAF50; color: white; font-size: 14px;
+    }
+
+    .footer {
+      position: relative; z-index: 1; margin-top: 24px;
+      text-align: center;
+    }
+    .footer__text { font-size: 13px; color: #AAA; }
+    .footer__brand { font-size: 14px; color: #FF6B6B; font-weight: 600; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="card-canvas">
+    <div class="blob blob--1"></div>
+    <div class="blob blob--2"></div>
+
+    <div class="header">
+      <div class="header__icon">🌸</div>
+      <h1 class="header__title">出门前的<br>7 件小事</h1>
+      <p class="header__sub">养成习惯，每天都是精致的一天</p>
+    </div>
+
+    <div class="list">
+      <div class="list-item">
+        <span class="list-item__emoji">💧</span>
+        <div class="list-item__text">
+          <h4 class="list-item__title">喝一杯温水</h4>
+          <p class="list-item__desc">唤醒身体代谢，比咖啡更温和</p>
+        </div>
+        <div class="list-item__check list-item__check--done">✓</div>
+      </div>
+      <div class="list-item">
+        <span class="list-item__emoji">🧴</span>
+        <div class="list-item__text">
+          <h4 class="list-item__title">护肤三步曲</h4>
+          <p class="list-item__desc">水→精华→防晒，顺序不能乱</p>
+        </div>
+        <div class="list-item__check list-item__check--done">✓</div>
+      </div>
+      <div class="list-item">
+        <span class="list-item__emoji">👃</span>
+        <div class="list-item__text">
+          <h4 class="list-item__title">喷一点香氛</h4>
+          <p class="list-item__desc">好闻的气味提升一整天的心情</p>
+        </div>
+        <div class="list-item__check"></div>
+      </div>
+      <div class="list-item">
+        <span class="list-item__emoji">📱</span>
+        <div class="list-item__text">
+          <h4 class="list-item__title">检查今日待办</h4>
+          <p class="list-item__desc">花 30 秒过一遍，心里有底不焦虑</p>
+        </div>
+        <div class="list-item__check"></div>
+      </div>
+      <div class="list-item">
+        <span class="list-item__emoji">🎵</span>
+        <div class="list-item__text">
+          <h4 class="list-item__title">放一首好歌</h4>
+          <p class="list-item__desc">出门路上的 BGM，节奏感拉满</p>
+        </div>
+        <div class="list-item__check"></div>
+      </div>
+      <div class="list-item">
+        <span class="list-item__emoji">🪞</span>
+        <div class="list-item__text">
+          <h4 class="list-item__title">照镜子微笑</h4>
+          <p class="list-item__desc">给自己一个正反馈，自信加成</p>
+        </div>
+        <div class="list-item__check"></div>
+      </div>
+      <div class="list-item">
+        <span class="list-item__emoji">🔑</span>
+        <div class="list-item__text">
+          <h4 class="list-item__title">确认钥匙手机</h4>
+          <p class="list-item__desc">出门三件套：手机、钥匙、好心情</p>
+        </div>
+        <div class="list-item__check"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p class="footer__text">坚持 21 天就会变成习惯</p>
+      <p class="footer__brand">@ 你的账号名</p>
+    </div>
+  </div>
+</body>
+</html>

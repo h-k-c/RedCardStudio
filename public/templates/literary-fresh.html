@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>文艺清新风 - 教程</title>
+  <link rel="stylesheet" href="../styles/base.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; background: #A8B5A0; padding: 40px;
+    }
+    .card-canvas {
+      width: var(--canvas-width); height: var(--canvas-height);
+      background: #F9F7F2;
+      padding: 64px;
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+      font-family: "Noto Sans SC", sans-serif; color: #3D3D3D;
+    }
+
+    /* 水彩装饰 */
+    .watercolor {
+      position: absolute; pointer-events: none; border-radius: 50%;
+      opacity: 0.15; filter: blur(40px);
+    }
+    .watercolor--1 { width: 400px; height: 400px; top: -100px; right: -100px; background: #B5D5C5; }
+    .watercolor--2 { width: 250px; height: 250px; bottom: 80px; left: -80px; background: #F2C4C4; }
+    .watercolor--3 { width: 180px; height: 180px; top: 50%; right: 20%; background: #D4C5F9; }
+
+    .header { position: relative; z-index: 1; margin-bottom: 48px; }
+    .header__deco {
+      font-family: "Lora", serif; font-size: 14px; font-style: italic;
+      color: #8BA888; margin-bottom: 16px; letter-spacing: 0.1em;
+    }
+    .header__title {
+      font-family: "Noto Serif SC", serif;
+      font-size: 40px; font-weight: 600; line-height: 1.3;
+      color: #2D3B2D;
+    }
+    .header__desc {
+      margin-top: 16px; font-size: 15px; color: #777;
+      line-height: 1.8; font-weight: 300;
+    }
+    .header__border {
+      margin-top: 24px; width: 100%; height: 1px;
+      background: linear-gradient(90deg, #B5D5C5, transparent 60%);
+    }
+
+    .sections {
+      flex: 1; display: flex; flex-direction: column; gap: 36px;
+      position: relative; z-index: 1;
+    }
+    .section {
+      padding: 24px 28px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 12px;
+      border: 1px solid rgba(181,213,197,0.3);
+    }
+    .section__header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 12px;
+    }
+    .section__icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: #E8F5E9; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .section__title {
+      font-family: "Noto Serif SC", serif;
+      font-size: 20px; font-weight: 600; color: #2D3B2D;
+    }
+    .section__body {
+      font-size: 14px; color: #666; line-height: 1.9;
+      padding-left: 44px;
+    }
+    .section__quote {
+      margin-top: 10px; padding: 10px 16px;
+      border-left: 2px solid #B5D5C5;
+      font-family: "Noto Serif SC", serif;
+      font-size: 13px; color: #8BA888;
+      font-style: italic; line-height: 1.7;
+    }
+
+    .footer {
+      position: relative; z-index: 1;
+      margin-top: 32px; text-align: center;
+    }
+    .footer__divider {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 16px;
+    }
+    .footer__divider::before, .footer__divider::after {
+      content: ''; flex: 1; height: 1px; background: #DDD;
+    }
+    .footer__divider span { font-size: 14px; color: #B5D5C5; }
+    .footer__text { font-size: 13px; color: #AAA; letter-spacing: 0.05em; }
+  </style>
+</head>
+<body>
+  <div class="card-canvas">
+    <div class="watercolor watercolor--1"></div>
+    <div class="watercolor watercolor--2"></div>
+    <div class="watercolor watercolor--3"></div>
+
+    <div class="header">
+      <p class="header__deco">— a gentle guide —</p>
+      <h1 class="header__title">写出治愈文字的<br>四个小秘密</h1>
+      <p class="header__desc">用文字传递温暖，不需要华丽辞藻，只需要真诚</p>
+      <div class="header__border"></div>
+    </div>
+
+    <div class="sections">
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon">🌿</div>
+          <h3 class="section__title">写具体的感受</h3>
+        </div>
+        <p class="section__body">不说「今天很开心」，而是写「阳光透过玻璃杯在桌上画了一个彩虹」。具体的画面比抽象的形容词更有力量。</p>
+      </div>
+
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon">🍃</div>
+          <h3 class="section__title">用短句制造呼吸</h3>
+        </div>
+        <p class="section__body">长句让人喘不过气。学会断句，一行一个画面。让读者在句号处停下来，感受你留下的余韵。</p>
+        <div class="section__quote">"好的文字，是读完后的那一秒沉默。"</div>
+      </div>
+
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon">🌸</div>
+          <h3 class="section__title">从日常取材</h3>
+        </div>
+        <p class="section__body">路边的野花、楼下的猫、一杯刚好温度的茶。越是平凡的事物，越容易引起共鸣。</p>
+      </div>
+
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon">✨</div>
+          <h3 class="section__title">结尾留一点光</h3>
+        </div>
+        <p class="section__body">哪怕写的是低落的心情，也在最后留一个温暖的转折。人们记住的永远是最后一句。</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer__divider"><span>♡</span></div>
+      <p class="footer__text">@ 你的账号名 · 愿文字温暖你</p>
+    </div>
+  </div>
+</body>
+</html>
