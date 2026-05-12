@@ -5,6 +5,7 @@
     :author="author"
     :page="page"
     :header-text="headerText"
+    :code-theme="codeTheme"
   />
 </template>
 
@@ -20,6 +21,7 @@ const props = defineProps<{
   author: string
   page: string
   headerText?: string
+  codeTheme?: string
 }>()
 
 const activeRenderer = computed(() => rendererMap[props.cardStyle])

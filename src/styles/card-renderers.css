@@ -40,7 +40,7 @@
   font-family: "JetBrains Mono", monospace;
   font-size: 0.85em;
   background: rgba(0,0,0,0.06);
-  color: inherit;
+  color: #0066cc;
 }
 .card--dark code {
   background: rgba(255,255,255,0.08);
@@ -49,21 +49,56 @@
 .card__code-block {
   display: block;
   margin: 10px 0;
-  padding: 14px 18px;
-  border-radius: 8px;
-  background: #1E1E1E;
-  color: #D4D4D4;
+  padding: 16px 20px;
+  border-radius: 10px;
   font-family: "JetBrains Mono", monospace;
-  font-size: calc(12px * var(--card-font-scale, 1));
-  line-height: 1.6;
+  font-size: calc(13px * var(--card-font-scale, 1));
+  line-height: 1.7;
   overflow-x: auto;
   position: relative;
+  border: 1px solid;
 }
-.card--magazine .card__code-block,
-.card--japanese .card__code-block,
-.card--literary .card__code-block,
-.card--vibrant .card__code-block {
-  background: #2D2D2D;
+
+/* GitHub 主题（默认） */
+.card__code-block[data-theme="github"],
+.card__code-block:not([data-theme]) {
+  background: #f6f8fa;
+  color: #24292e;
+  border-color: #e1e4e8;
+}
+.card__code-block[data-theme="github"] .card__code-lang,
+.card__code-block:not([data-theme]) .card__code-lang {
+  color: #6a737d;
+}
+
+/* 暗黑主题 */
+.card__code-block[data-theme="dark"] {
+  background: #1a1a2e;
+  color: #a9b7c6;
+  border-color: #2a2a3e;
+}
+.card__code-block[data-theme="dark"] .card__code-lang {
+  color: #8a939e;
+}
+
+/* Solarized 主题 */
+.card__code-block[data-theme="solarized"] {
+  background: #fdf6e3;
+  color: #657b83;
+  border-color: #eee8d5;
+}
+.card__code-block[data-theme="solarized"] .card__code-lang {
+  color: #93a1a1;
+}
+
+/* Monokai 主题 */
+.card__code-block[data-theme="monokai"] {
+  background: #272822;
+  color: #f8f8f2;
+  border-color: #3e3d32;
+}
+.card__code-block[data-theme="monokai"] .card__code-lang {
+  color: #75715e;
 }
 .card__code-block code {
   display: block;
@@ -75,12 +110,16 @@
 }
 .card__code-lang {
   position: absolute;
-  top: 6px;
-  right: 12px;
-  font-size: calc(10px * var(--card-font-scale, 1));
-  opacity: 0.4;
+  top: 8px;
+  right: 14px;
+  font-size: calc(11px * var(--card-font-scale, 1));
+  opacity: 0.5;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  color: #6a737d;
+}
+.card--dark .card__code-lang {
+  color: #8a939e;
 }
 .card .card__step-desc ul,
 .card .card__step-desc ol {

@@ -7,63 +7,15 @@ import { STYLE_REGISTRY } from '@/data/styleRegistry'
 import { useImageStore } from './imageStore'
 
 export const useCardStore = defineStore('card', () => {
-  const { parseMultiPage } = useMarkdownParser()
+  const { parseMultiPage, parseSinglePage } = useMarkdownParser()
   const imageStore = useImageStore()
 
-  const pageSources = ref<string[]>([
-    `# 手机摄影构图 5个核心法则
-
-> 从入门到进阶，拍出杂志感大片
-
-#摄影 #构图 #教程
-
-## 三分法则
-将画面分成 3×3 的九宫格，把主体放在 **交叉点** 上。这是最基础也最有效的构图方式。
-
-> 💡 打开手机相机的 \`网格线\` 辅助对齐
-
-## 引导线构图
-利用道路、栏杆、建筑线条等元素，将视线引向画面主体，营造 *纵深感*。
-
-> 💡 街道、楼梯、河流都是天然的引导线
-
-## 框架构图
-通过门窗、拱门、树枝等自然框架聚焦视线，增加画面层次和故事感。`,
-    `# 手机摄影构图 5个核心法则
-
-> 进阶篇
-
-#摄影 #进阶
-
-## 对称与平衡
-利用水面倒影、建筑对称轴，创造视觉 **稳定感**。适合表现庄重、宁静的氛围。
-
-## 留白艺术
-大胆留出空白区域，让主体呼吸。*少即是多*，空间本身就是设计的一部分。
-
-> 💡 留白比例建议占画面 \`40%-60%\`
-
----
-Photography · Tutorial`
-  ])
-
-  const markdownContent = computed(() => pageSources.value.join('\n\n===\n\n'))
-
-  // Replace img-xxx placeholders with actual blob URLs before parsing
-  const resolvedMarkdown = computed(() => {
-    return markdownContent.value.replace(
-      /!\[([^\]]*)\]\((img-\d+)\)/g,
-      (_: string, alt: string, id: string) => {
-        const url = imageStore.getUrl(id)
-        return url ? `![${alt}](${url})` : `![${alt}]()`
-      }
-    )
-  })
+  const pageSources = ref<string[]>([''])
 
   const currentStyle = ref<CardStyle>('white')
   const author = ref('你的账号名')
   const currentPageIndex = ref(0)
-  const autoSplitMax = ref(4)
+  const autoSplitMax = ref(3)
   const previewScale = ref(0.38)
 
   const titleFont = ref('"Noto Serif SC", serif')
@@ -73,28 +25,40 @@ Photography · Tutorial`
 
   const headerText = ref('')
   const footerSlogan = ref('')
+  
+  // 代码主题配置
+  const codeTheme = ref<'github' | 'dark' | 'solarized' | 'monokai'>('github')
 
-  const multiPageData = computed(() => parseMultiPage(resolvedMarkdown.value, autoSplitMax.value))
+  // 为每一页解析 Markdown 数据
+  const pages = computed<CardData[]>(() => {
+    return pageSources.value.map(source => {
+      // 替换图片占位符
+      const resolved = source.replace(
+        /!\[([^\]]*)\]\((img-\d+)\)/g,
+        (_: string, alt: string, id: string) => {
+          const url = imageStore.getUrl(id)
+          return url ? `![${alt}](${url})` : `![${alt}]()`
+        }
+      )
+      return parseSinglePage(resolved)
+    })
+  })
 
-  const pages = computed<CardData[]>(() => multiPageData.value.pages)
-  const totalPages = computed(() => multiPageData.value.totalPages)
+  const totalPages = computed(() => pages.value.length)
 
   const currentPageData = computed<CardData>(() => pages.value[currentPageIndex.value] || pages.value[0])
 
   const parsedData = computed<CardData>(() => currentPageData.value)
 
+  // 编辑器显示当前页的内容
   const currentPageSource = computed({
-    get: () => pageSources.value[currentPageIndex.value] || '',
+    get: () => {
+      return pageSources.value[currentPageIndex.value] || ''
+    },
     set: (val: string) => {
-      const cleaned = val.replace(/^===+$/gm, '---')
+      // 直接更新当前页
       if (currentPageIndex.value >= 0 && currentPageIndex.value < pageSources.value.length) {
-        pageSources.value[currentPageIndex.value] = cleaned
-        
-        // 如果当前页内容被清空且有多页，重置为单页
-        if (cleaned.trim() === '' && pageSources.value.length > 1) {
-          pageSources.value = ['']
-          currentPageIndex.value = 0
-        }
+        pageSources.value[currentPageIndex.value] = val
       }
     }
   })
@@ -142,8 +106,6 @@ Photography · Tutorial`
   }
 
   return {
-    markdownContent,
-    resolvedMarkdown,
     pageSources,
     currentPageSource,
     currentStyle,
@@ -157,6 +119,7 @@ Photography · Tutorial`
     fontWeight,
     headerText,
     footerSlogan,
+    codeTheme,
     pages,
     totalPages,
     currentPageData,

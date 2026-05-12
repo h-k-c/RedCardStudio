@@ -8,6 +8,15 @@
         </span>
         <div class="converter-view__toolbar-btns">
           <button :disabled="store.currentPageIndex <= 0" @click="store.prevPage()">←</button>
+          <button 
+            class="converter-view__toolbar-btns--page-break"
+            @click="handlePageBreakFromToolbar"
+            title="按标题分页（光标后的第一个 ## 或 ### 标题）"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
+            </svg>
+          </button>
           <button :disabled="store.currentPageIndex >= store.pageSources.length - 1" @click="store.nextPage()">→</button>
           <button @click="store.addPage()">＋</button>
           <button
@@ -17,7 +26,10 @@
           >✕</button>
         </div>
       </div>
-      <MarkdownEditor v-model="store.currentPageSource" />
+      <MarkdownEditor 
+        v-model="store.currentPageSource" 
+        @page-break="handlePageBreak"
+      />
     </aside>
 
     <!-- Center: preview with card -->
@@ -48,6 +60,7 @@
               :data="pageData"
               :author="store.author"
               :page="`${String(idx + 1).padStart(2, '0')} / ${String(store.totalPages).padStart(2, '0')}`"
+              :code-theme="store.codeTheme"
             />
           </CardCanvas>
         </div>
@@ -76,6 +89,7 @@
     <!-- Right: fixed style panel -->
     <aside class="converter-view__settings">
       <StyleSelector v-model="store.currentStyle" />
+      <CodeThemeSelector v-model="store.codeTheme" />
       <FontSelector
         v-model:title-font="store.titleFont"
         v-model:body-font="store.bodyFont"
@@ -100,12 +114,89 @@ import MarkdownEditor from '@/components/converter/MarkdownEditor.vue'
 import CardCanvas from '@/components/card/CardCanvas.vue'
 import CardRenderer from '@/components/card/CardRenderer.vue'
 import StyleSelector from '@/components/converter/StyleSelector.vue'
+import CodeThemeSelector from '@/components/converter/CodeThemeSelector.vue'
 import FontSelector from '@/components/converter/FontSelector.vue'
 
 const store = useCardStore()
 const { exportElement } = useCardExport()
 
 const previewScale = computed(() => 0.5)
+
+/**
+ * 处理分页：将光标后的内容创建为新页面
+ */
+function handlePageBreak(beforeContent: string, afterContent: string) {
+  if (!afterContent.trim()) {
+    store.currentPageSource = beforeContent
+    return
+  }
+  
+  if (!beforeContent.trim()) {
+    store.currentPageSource = afterContent
+    return
+  }
+  
+  // 更新当前页为前半部分
+  store.currentPageSource = beforeContent
+  
+  // 在当前页后面插入新页面
+  store.pageSources.splice(store.currentPageIndex + 1, 0, afterContent)
+  
+  // 跳转到新页面
+  store.goToPage(store.currentPageIndex + 1)
+}
+
+/**
+ * 从工具栏触发分页（直接操作当前内容）
+ */
+function handlePageBreakFromToolbar() {
+  const currentText = store.currentPageSource
+  if (!currentText) return
+  
+  // 查找光标位置
+  const selection = window.getSelection()
+  if (!selection || selection.rangeCount === 0) return
+  
+  const range = selection.getRangeAt(0)
+  const container = range.startContainer
+  const cmContent = container.parentElement?.closest('.cm-content')
+  if (!cmContent) return
+  
+  const contentRange = document.createRange()
+  contentRange.setStart(cmContent, 0)
+  contentRange.setEnd(container, range.startOffset)
+  const cursorPos = contentRange.toString().length
+  
+  // 查找下一个标题
+  const textAfterCursor = currentText.substring(cursorPos)
+  const lines = textAfterCursor.split('\n')
+  
+  let titleIndex = -1
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim()
+    if (line.startsWith('## ') || line.startsWith('### ')) {
+      titleIndex = i
+      break
+    }
+  }
+  
+  if (titleIndex === -1) return
+  
+  // 计算标题位置
+  let titlePos = cursorPos
+  for (let i = 0; i < titleIndex; i++) {
+    titlePos += lines[i].length + 1
+  }
+  
+  // 分割内容
+  const beforeContent = currentText.substring(0, titlePos).trim()
+  const afterContent = currentText.substring(titlePos).trim()
+  
+  if (!afterContent) return
+  
+  // 调用分页逻辑
+  handlePageBreak(beforeContent, afterContent)
+}
 
 const fontOverrideStyle = computed(() => {
   const s: Record<string, string> = {}
@@ -329,6 +420,20 @@ async function handleExportAll() {
 }
 .converter-view__toolbar-btns button.danger:hover:not(:disabled) {
   background: #fee;
+}
+
+/* 分页按钮样式 */
+.converter-view__toolbar-btns--page-break {
+  position: relative;
+}
+.converter-view__toolbar-btns--page-break svg {
+  width: 16px;
+  height: 16px;
+  color: #667eea;
+}
+.converter-view__toolbar-btns--page-break:hover:not(:disabled) {
+  background: #f0f0ff;
+  border-color: #667eea;
 }
 
 /* 中间预览区 */

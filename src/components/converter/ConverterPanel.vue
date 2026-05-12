@@ -34,6 +34,10 @@
       />
     </div>
 
+    <div class="converter-panel__section">
+      <CodeThemeSelector v-model="store.codeTheme" />
+    </div>
+
     <div class="converter-panel__section converter-panel__row">
       <div class="converter-panel__field">
         <label>作者</label>
@@ -102,6 +106,7 @@ import { useCardStore } from '@/stores/cardStore'
 import MarkdownEditor from './MarkdownEditor.vue'
 import StyleSelector from './StyleSelector.vue'
 import FontSelector from './FontSelector.vue'
+import CodeThemeSelector from './CodeThemeSelector.vue'
 
 const store = useCardStore()
 

@@ -33,6 +33,206 @@ function escapeHtml(str: string): string {
     .replace(/"/g, '&quot;')
 }
 
+// ---- 内容高度估算（基于行数统计） ----
+// 卡片 canvas 固定 1080×1440
+
+const CARD_HEIGHT = 1440
+/** 无封面时的固定开销：标题(90) + 副标题/分类(60) + 标签(50) + 页脚(50) + 内边距(80) + 分割线(30) */
+const FIXED_OVERHEAD = 360
+/** 有封面时的固定开销 */
+const FIXED_OVERHEAD_WITH_COVER = 760
+/** 基础行高（16px 字体） */
+const BASE_LINE_HEIGHT = 28
+/** 代码行高 */
+const CODE_LINE_HEIGHT = 22
+/** 步骤标题+编号行高 */
+const STEP_TITLE_HEIGHT = 45
+/** 步骤 tip 行高 */
+const STEP_TIP_HEIGHT = 36
+/** 步骤底部间距 */
+const STEP_BOTTOM_MARGIN = 16
+/** 列表项额外间距 */
+const LIST_ITEM_MARGIN = 4
+/** 段落间距 */
+const PARAGRAPH_MARGIN = 10
+/** 代码块上下间距 */
+const CODE_BLOCK_MARGIN = 20
+
+/** 计算文本行数（考虑中英文宽度差异） */
+function calculateTextLines(text: string, charsPerLine: number = 45): number {
+  if (!text) return 0
+  
+  // 去除 HTML 标签
+  const cleanText = text.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/g, ' ')
+  
+  // 按换行符分割
+  const lines = cleanText.split('\n')
+  let totalLines = 0
+  
+  for (const line of lines) {
+    if (!line.trim()) {
+      totalLines += 1
+      continue
+    }
+    
+    // 计算有效字符数（中文占 2 个英文字符宽度）
+    let effectiveLength = 0
+    for (const char of line) {
+      // 中文字符（CJK）宽度约为英文的 2 倍
+      if (/[\u4e00-\u9fa5\u3000-\u303f\uff00-\uffef]/.test(char)) {
+        effectiveLength += 2
+      } else {
+        effectiveLength += 1
+      }
+    }
+    
+    totalLines += Math.max(1, Math.ceil(effectiveLength / charsPerLine))
+  }
+  
+  return totalLines
+}
+
+/** 估算一段 HTML 描述文本的渲染高度（精确计算） */
+function estimateDescHeight(desc: string, fontScale: number = 1): number {
+  if (!desc) return 0
+  let h = 0
+  
+  const scale = fontScale / 100
+  const lineHeight = BASE_LINE_HEIGHT * scale
+  const codeLineHeight = CODE_LINE_HEIGHT * scale
+
+  // 图片（尝试从 src 获取实际尺寸，否则用默认值）
+  const imgMatches = desc.match(/<img [^>]*>/g)
+  if (imgMatches) {
+    for (const imgTag of imgMatches) {
+      // 尝试提取 width/height 属性
+      const widthMatch = imgTag.match(/width="(\d+)/)
+      const heightMatch = imgTag.match(/height="(\d+)/)
+      
+      if (widthMatch && heightMatch) {
+        // 有明确尺寸，按比例缩放（卡片宽度 1080）
+        const width = parseInt(widthMatch[1])
+        const height = parseInt(heightMatch[1])
+        const scaledHeight = (1080 / width) * height
+        h += scaledHeight
+      } else {
+        // 默认高度 200px
+        h += 200 * scale
+      }
+    }
+  }
+
+  // 代码块（精确计算行数）
+  const codeBlocks = desc.match(/<pre class="card__code-block">([\s\S]*?)<\/pre>/g)
+  if (codeBlocks) {
+    for (const block of codeBlocks) {
+      // 提取代码内容
+      const inner = block
+        .replace(/<pre class="card__code-block">/, '')
+        .replace(/<span class="card__code-lang">[^<]*<\/span>/, '')
+        .replace(/<code>/, '')
+        .replace(/<\/code>/, '')
+        .replace(/<\/pre>/, '')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+      
+      // 计算所有行数（包括空行）
+      const lines = inner.split('\n').length
+      h += Math.max(1, lines) * codeLineHeight
+      h += CODE_BLOCK_MARGIN * scale
+    }
+  }
+
+  // 纯文本（去掉代码块和图片）
+  let text = desc
+    .replace(/<pre class="card__code-block">[\s\S]*?<\/pre>/g, '')
+    .replace(/<img [^>]*>/g, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&[a-z]+;/g, ' ')
+    .trim()
+
+  if (text) {
+    // 计算段落数
+    const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim())
+    
+    for (const para of paragraphs) {
+      // 检查是否是列表
+      const listItems = para.match(/^[\s]*[-*]\s+/gm)
+      if (listItems) {
+        // 列表项
+        const lines = calculateTextLines(para, 42) // 列表缩进，每行少 3 个字符
+        h += lines * lineHeight
+        h += listItems.length * LIST_ITEM_MARGIN * scale
+      } else {
+        // 普通段落
+        const lines = calculateTextLines(para)
+        h += lines * lineHeight
+        h += PARAGRAPH_MARGIN * scale
+      }
+    }
+  }
+
+  return h
+}
+
+/** 估算单个步骤的渲染总高度 */
+function estimateStepHeight(step: { title: string; desc: string; tip: string }, fontScale: number = 100): number {
+  const scale = fontScale / 100
+  let h = STEP_TITLE_HEIGHT * scale + estimateDescHeight(step.desc, fontScale)
+  if (step.tip) h += STEP_TIP_HEIGHT * scale
+  h += STEP_BOTTOM_MARGIN * scale
+  return h
+}
+
+/** 估算整页卡片的渲染总高度 */
+function estimateTotalHeight(data: CardData, fontScale: number = 100): number {
+  const scale = fontScale / 100
+  const overhead = data.coverImage ? FIXED_OVERHEAD_WITH_COVER * scale : FIXED_OVERHEAD * scale
+  const stepsH = data.steps.reduce((sum, s) => sum + estimateStepHeight(s, fontScale), 0)
+  return overhead + stepsH
+}
+
+/** 是否需要对这张卡片做自动分页 */
+function needsAutoSplit(data: CardData, maxSteps: number): boolean {
+  if (data.steps.length > maxSteps) return true
+  return estimateTotalHeight(data) > CARD_HEIGHT
+}
+
+/** 按 ## 标题进行简单分页 */
+function autoSplitByHeadings(data: CardData, maxSteps: number): MultiPageResult {
+  const pages: CardData[] = []
+  let chunk: typeof data.steps = []
+
+  for (const step of data.steps) {
+    chunk.push(step)
+
+    // 每 maxSteps 个步骤分一页
+    if (chunk.length >= maxSteps) {
+      pages.push(buildPage(data, chunk, pages.length + 1))
+      chunk = []
+    }
+  }
+
+  // 最后一页
+  if (chunk.length > 0) {
+    pages.push(buildPage(data, chunk, pages.length + 1))
+  }
+
+  return { pages, totalPages: pages.length }
+}
+
+function buildPage(data: CardData, steps: typeof data.steps, pageIndex: number): CardData {
+  return {
+    title: data.title,
+    subtitle: pageIndex === 1 ? data.subtitle : '',
+    category: data.category,
+    steps,
+    tags: pageIndex === 1 ? data.tags : [],
+    coverImage: pageIndex === 1 ? data.coverImage : undefined,
+  }
+}
+
 export function useMarkdownParser() {
   function parse(md: string): CardData {
     return parseSinglePage(md)
@@ -47,34 +247,11 @@ export function useMarkdownParser() {
     }
 
     const singleResult = parseSinglePage(md)
-    if (autoSplitMax && autoSplitMax > 0 && singleResult.steps.length > autoSplitMax) {
-      return autoSplit(singleResult, autoSplitMax)
+    if (autoSplitMax && autoSplitMax > 0 && needsAutoSplit(singleResult, autoSplitMax)) {
+      return autoSplitByHeadings(singleResult, autoSplitMax)
     }
 
     return { pages: [singleResult], totalPages: 1 }
-  }
-
-  function autoSplit(data: CardData, maxSteps: number): MultiPageResult {
-    const pages: CardData[] = []
-    const totalSteps = data.steps.length
-    let offset = 0
-
-    while (offset < totalSteps) {
-      const chunk = data.steps.slice(offset, offset + maxSteps)
-      const pageIndex = pages.length + 1
-
-      pages.push({
-        title: data.title,
-        subtitle: pageIndex === 1 ? data.subtitle : '',
-        category: data.category,
-        steps: chunk,
-        tags: pageIndex === 1 ? data.tags : []
-      })
-
-      offset += maxSteps
-    }
-
-    return { pages, totalPages: pages.length }
   }
 
   function parseSinglePage(md: string): CardData {
@@ -156,13 +333,15 @@ export function useMarkdownParser() {
         continue
       }
 
-      // 步骤标题
-      if (trimmed.startsWith('## ')) {
+      // 步骤标题（支持 ## 和 ###）
+      if ((trimmed.startsWith('## ') || trimmed.startsWith('### ')) && !trimmed.startsWith('#### ')) {
         if (currentStep) {
           currentStep.desc = finalizeDesc(currentStep.desc)
           result.steps.push(currentStep)
         }
-        currentStep = { title: trimmed.slice(3).trim(), desc: '', tip: '' }
+        // 去掉 ## 或 ### 前缀
+        const titleText = trimmed.startsWith('### ') ? trimmed.slice(4) : trimmed.slice(3)
+        currentStep = { title: titleText.trim(), desc: '', tip: '' }
         continue
       }
 
@@ -201,5 +380,5 @@ export function useMarkdownParser() {
     return renderInline(raw.trim())
   }
 
-  return { parse, parseMultiPage }
+  return { parse, parseMultiPage, parseSinglePage }
 }
