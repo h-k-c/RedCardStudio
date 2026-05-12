@@ -2,8 +2,6 @@
 
 将 Markdown 一键转换为小红书风格卡片，支持 8 种主题、自定义字体，导出高清 PNG。
 
-🔗 **在线体验：[redcardstudio.pages.dev](https://redcardstudio.pages.dev)**
-
 ## 预览
 
 | 文艺清新 | 纯奶牛白 | 极简黑白 |
