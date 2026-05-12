@@ -90,7 +90,8 @@ async function test() {
   }, {
     markdown: `# MCP 渲染测试\n\n> 验证 Markdown 转 PNG 功能\n\n## 第一步\n这是第一步的内容。\n\n## 第二步\n验证多步骤渲染。\n\n---\n测试完成`,
     style: 'dark',
-    author: 'MCP-Test'
+    author: 'MCP-Test',
+    hidePage: true
   })
   await page.waitForFunction(() => document.body.dataset.rendered === 'true', { timeout: 15000 })
 

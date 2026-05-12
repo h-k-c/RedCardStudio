@@ -31,8 +31,7 @@ const RenderSchema = z.object({
   titleFont: z.string().optional().describe('标题字体 CSS 值'),
   bodyFont: z.string().optional().describe('正文字体 CSS 值'),
   headerText: z.string().optional().describe('页眉文字'),
-  footerSlogan: z.string().optional().describe('页脚标语'),
-  pageIndex: z.number().min(0).optional().describe('多页时渲染第几页（从0开始）')
+  footerSlogan: z.string().optional().describe('页脚标语')
 })
 
 type RenderArgs = z.infer<typeof RenderSchema>
@@ -114,7 +113,7 @@ async function getPage(): Promise<Page> {
 async function renderToPng(args: RenderArgs): Promise<Buffer> {
   const p = await getPage()
   await p.evaluate(() => { document.body.dataset.rendered = 'false' })
-  await p.evaluate((cfg) => { if (window.__renderCard__) window.__renderCard__(cfg) }, args)
+  await p.evaluate((cfg) => { if (window.__renderCard__) window.__renderCard__(cfg) }, { ...args, hidePage: true })
   await p.waitForFunction(() => document.body.dataset.rendered === 'true', { timeout: 15000 })
   const cardEl = await p.$('.card')
   if (!cardEl) throw new Error('未找到卡片元素，渲染可能失败')
@@ -174,11 +173,6 @@ async function main() {
           footerSlogan: {
             type: 'string',
             description: '页脚标语/品牌口号\n\n示例: "Less is more."、"Stay hungry, stay foolish."、"每天进步一点点"'
-          },
-          pageIndex: {
-            type: 'number',
-            minimum: 0,
-            description: '当 Markdown 包含多页时（用 --- 或 === 分隔），指定渲染第几页（从 0 开始）\n\n示例: 0 表示第一页，1 表示第二页'
           }
         },
         required: ['markdown']

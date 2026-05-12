@@ -36,6 +36,7 @@ interface RenderConfig {
   headerText?: string
   footerSlogan?: string
   pageIndex?: number
+  hidePage?: boolean
 }
 
 const { parseMultiPage } = useMarkdownParser()
@@ -58,6 +59,7 @@ const pageData = computed<CardData | null>(() => {
 })
 
 const pageLabel = computed(() => {
+  if (config.value.hidePage) return ''
   const result = multiPageResult.value
   if (!result) return '01 / 01'
   const idx = config.value.pageIndex ?? 0
