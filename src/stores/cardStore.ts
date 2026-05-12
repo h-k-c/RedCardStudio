@@ -100,6 +100,73 @@ export const useCardStore = defineStore('card', () => {
     }
   }
 
+  /**
+   * 锁定当前页：保存当前样式快照，不再受全局样式影响
+   */
+  function lockPage() {
+    const pageIndex = currentPageIndex.value
+    if (pageIndex >= 0 && pageIndex < pages.value.length) {
+      const page = pages.value[pageIndex]
+      // 保存当前全局样式到页面
+      page.pageStyle = {
+        style: currentStyle.value,
+        titleFont: titleFont.value,
+        bodyFont: bodyFont.value,
+        fontScale: fontScale.value,
+        fontWeight: fontWeight.value,
+        headerText: headerText.value,
+        author: author.value,
+        codeTheme: codeTheme.value
+      }
+    }
+  }
+
+  /**
+   * 解锁当前页：清除样式快照，恢复使用全局样式
+   */
+  function unlockPage() {
+    const pageIndex = currentPageIndex.value
+    if (pageIndex >= 0 && pageIndex < pages.value.length) {
+      const page = pages.value[pageIndex]
+      page.pageStyle = null
+    }
+  }
+
+  /**
+   * 检查当前页是否已锁定
+   */
+  function isPageLocked(): boolean {
+    const pageIndex = currentPageIndex.value
+    if (pageIndex >= 0 && pageIndex < pages.value.length) {
+      return !!pages.value[pageIndex].pageStyle
+    }
+    return false
+  }
+
+  /**
+   * 获取当前页应使用的样式（优先使用页面独立样式）
+   */
+  function getCurrentPageStyle() {
+    const pageIndex = currentPageIndex.value
+    if (pageIndex >= 0 && pageIndex < pages.value.length) {
+      const page = pages.value[pageIndex]
+      if (page.pageStyle) {
+        return page.pageStyle
+      }
+    }
+    // 返回全局样式
+    return {
+      style: currentStyle.value,
+      titleFont: titleFont.value,
+      bodyFont: bodyFont.value,
+      fontScale: fontScale.value,
+      fontWeight: fontWeight.value,
+      headerText: headerText.value,
+      author: author.value,
+      codeTheme: codeTheme.value
+    }
+  }
+
   function reset() {
     pageSources.value = ['']
     currentPageIndex.value = 0
@@ -131,6 +198,10 @@ export const useCardStore = defineStore('card', () => {
     prevPage,
     addPage,
     deletePage,
+    lockPage,
+    unlockPage,
+    isPageLocked,
+    getCurrentPageStyle,
     reset,
   }
 })

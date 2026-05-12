@@ -56,11 +56,11 @@
             :extra-style="fontOverrideStyle"
           >
             <CardRenderer
-              :card-style="store.currentStyle"
+              :card-style="(pageData.pageStyle?.style || store.currentStyle) as any"
               :data="pageData"
-              :author="store.author"
+              :author="pageData.pageStyle?.author || store.author"
               :page="`${String(idx + 1).padStart(2, '0')} / ${String(store.totalPages).padStart(2, '0')}`"
-              :code-theme="store.codeTheme"
+              :code-theme="pageData.pageStyle?.codeTheme || store.codeTheme"
             />
           </CardCanvas>
         </div>
@@ -91,6 +91,27 @@
           <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
         </svg>
         <span>已自动拆分为 {{ store.totalPages }} 页</span>
+      </div>
+
+      <!-- 页面锁定控制 -->
+      <div class="converter-view__page-lock">
+        <div class="converter-view__page-lock-status">
+          <svg v-if="store.isPageLocked()" class="converter-view__page-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <svg v-else class="converter-view__page-lock-icon converter-view__page-lock-icon--unlocked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+          </svg>
+          <span>{{ store.isPageLocked() ? '页面已锁定' : '页面未锁定' }}</span>
+        </div>
+        <button 
+          :class="['converter-view__page-lock-btn', { 'converter-view__page-lock-btn--locked': store.isPageLocked() }]"
+          @click="store.isPageLocked() ? store.unlockPage() : store.lockPage()"
+        >
+          {{ store.isPageLocked() ? '解锁' : '锁定' }}
+        </button>
       </div>
     </main>
 
@@ -208,10 +229,33 @@ function handlePageBreakFromToolbar() {
 
 const fontOverrideStyle = computed(() => {
   const s: Record<string, string> = {}
-  if (store.titleFont) s['--card-title-font'] = store.titleFont
-  if (store.bodyFont) s['--card-body-font'] = store.bodyFont
-  if (store.fontScale !== 100) s['--card-font-scale'] = String(store.fontScale / 100)
-  if (store.fontWeight !== 400) s['--card-font-weight'] = String(store.fontWeight)
+  const currentPageStyle = store.pages[store.currentPageIndex]?.pageStyle
+  
+  // 优先使用页面独立样式
+  if (currentPageStyle?.titleFont) {
+    s['--card-title-font'] = currentPageStyle.titleFont
+  } else if (store.titleFont) {
+    s['--card-title-font'] = store.titleFont
+  }
+  
+  if (currentPageStyle?.bodyFont) {
+    s['--card-body-font'] = currentPageStyle.bodyFont
+  } else if (store.bodyFont) {
+    s['--card-body-font'] = store.bodyFont
+  }
+  
+  if (currentPageStyle?.fontScale && currentPageStyle.fontScale !== 100) {
+    s['--card-font-scale'] = String(currentPageStyle.fontScale / 100)
+  } else if (store.fontScale !== 100) {
+    s['--card-font-scale'] = String(store.fontScale / 100)
+  }
+  
+  if (currentPageStyle?.fontWeight && currentPageStyle.fontWeight !== 400) {
+    s['--card-font-weight'] = String(currentPageStyle.fontWeight)
+  } else if (store.fontWeight !== 400) {
+    s['--card-font-weight'] = String(store.fontWeight)
+  }
+  
   return s
 })
 
@@ -569,6 +613,60 @@ async function handleExportAll() {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* 页面锁定控制 */
+.converter-view__page-lock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+}
+.converter-view__page-lock-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #667eea;
+}
+.converter-view__page-lock-icon {
+  width: 18px;
+  height: 18px;
+  color: #667eea;
+}
+.converter-view__page-lock-icon--unlocked {
+  color: #adb5bd;
+}
+.converter-view__page-lock-btn {
+  padding: 6px 16px;
+  border: 1px solid #667eea;
+  border-radius: 8px;
+  background: transparent;
+  color: #667eea;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.converter-view__page-lock-btn:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+.converter-view__page-lock-btn--locked {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+.converter-view__page-lock-btn--locked:hover {
+  background: #e74c3c;
+  color: white;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
 }
 
 /* 右侧设置面板 */
