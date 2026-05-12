@@ -7,7 +7,7 @@ import { STYLE_REGISTRY } from '@/data/styleRegistry'
 import { useImageStore } from './imageStore'
 
 export const useCardStore = defineStore('card', () => {
-  const { parseMultiPage, parseSinglePage } = useMarkdownParser()
+  const { parseSinglePage } = useMarkdownParser()
   const imageStore = useImageStore()
 
   const pageSources = ref<string[]>([''])
