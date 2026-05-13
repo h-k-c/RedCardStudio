@@ -27,6 +27,10 @@ export const useCardStore = defineStore('card', () => {
 
   const headerText = ref('')
   const footerSlogan = ref('')
+  const cardTitle = ref('')
+  const cardSubtitle = ref('')
+  const cardCategory = ref('')
+  const cardTags = ref('')
   
   // 代码主题配置
   const codeTheme = ref<'github' | 'dark' | 'solarized' | 'monokai'>('github')
@@ -44,8 +48,17 @@ export const useCardStore = defineStore('card', () => {
       )
       const pageData = parseSinglePage(resolved)
       
+      // 优先使用页面锁定的元数据，否则使用全局设置
+      const pageStyle = pageStyles.value[index]
+      pageData.title = pageStyle?.cardTitle || cardTitle.value || '标题'
+      pageData.subtitle = pageStyle?.cardSubtitle || cardSubtitle.value
+      pageData.category = pageStyle?.cardCategory || cardCategory.value || defaultCategory.value
+      pageData.tags = pageStyle?.cardTags 
+        ? pageStyle.cardTags.split(/[,，\s]+/).filter(Boolean)
+        : (cardTags.value ? cardTags.value.split(/[,，\s]+/).filter(Boolean) : [])
+      
       // 附加页面独立样式
-      pageData.pageStyle = pageStyles.value[index] || null
+      pageData.pageStyle = pageStyle || null
       return pageData
     })
   })
@@ -123,7 +136,11 @@ export const useCardStore = defineStore('card', () => {
         fontWeight: fontWeight.value,
         headerText: headerText.value,
         author: author.value,
-        codeTheme: codeTheme.value
+        codeTheme: codeTheme.value,
+        cardTitle: cardTitle.value,
+        cardSubtitle: cardSubtitle.value,
+        cardCategory: cardCategory.value,
+        cardTags: cardTags.value
       }
     }
   }
@@ -193,6 +210,10 @@ export const useCardStore = defineStore('card', () => {
     fontWeight,
     headerText,
     footerSlogan,
+    cardTitle,
+    cardSubtitle,
+    cardCategory,
+    cardTags,
     codeTheme,
     pages,
     totalPages,

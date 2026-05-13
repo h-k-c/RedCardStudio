@@ -267,43 +267,6 @@ export function useMarkdownParser() {
         continue
       }
 
-      // 封面图 ![cover](url)
-      const coverMatch = trimmed.match(/^!\[cover\]\((.+)\)$/)
-      if (coverMatch && !result.coverImage) {
-        result.coverImage = coverMatch[1]
-        continue
-      }
-
-      // 主标题 #
-      if (trimmed.startsWith('# ') && !trimmed.startsWith('## ') && !result.title) {
-        result.title = trimmed.slice(2).trim()
-        continue
-      }
-
-      // 副标题 > (紧跟主标题后，且不是 tip)
-      if (trimmed.startsWith('> ') && result.title && result.steps.length === 0 && !trimmed.startsWith('> 💡')) {
-        result.subtitle = renderInline(trimmed.slice(2).trim())
-        continue
-      }
-
-      // 分割线后是分类
-      if (trimmed === '---') {
-        if (i + 1 < lines.length) {
-          result.category = lines[i + 1].trim()
-          i++
-        }
-        continue
-      }
-
-      // 标签行 (独立一行全是 #tag 格式)
-      if (/^(#[^\s#]+\s*)+$/.test(trimmed) && !currentStep) {
-        const tagMatches = trimmed.match(/#([^\s#]+)/g)
-        if (tagMatches) {
-          result.tags.push(...tagMatches.map(t => t.slice(1)))
-        }
-        continue
-      }
-
       // 步骤标题（支持 ## 和 ###）
       if ((trimmed.startsWith('## ') || trimmed.startsWith('### ')) && !trimmed.startsWith('#### ')) {
         if (currentStep) {
