@@ -46,11 +46,12 @@ const formattedTitle = computed(() => formatDarkTitle(props.title || ''))
 function applyCodeTheme() {
   if (!props.codeTheme) return
   nextTick(() => {
-    const codeBlocks = document.querySelectorAll('pre code')
-    codeBlocks.forEach(block => {
-      const pre = block.parentElement
-      if (pre) {
-        pre.setAttribute('data-theme', props.codeTheme || 'github')
+    const codeTerminals = document.querySelectorAll('.card__code-terminal')
+    codeTerminals.forEach(terminal => {
+      terminal.setAttribute('data-theme', props.codeTheme || 'github')
+      const codeBlock = terminal.querySelector('.card__code-block')
+      if (codeBlock) {
+        codeBlock.setAttribute('data-theme', props.codeTheme || 'github')
       }
     })
   })

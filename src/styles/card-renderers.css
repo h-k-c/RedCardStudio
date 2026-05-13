@@ -61,56 +61,130 @@
 }
 .card__code-block {
   display: block;
-  margin: 10px 0;
-  padding: 16px 20px;
-  border-radius: 10px;
-  font-family: "JetBrains Mono", monospace;
+  margin: 0;
+  padding: 18px 20px;
+  border-radius: 0;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
   font-size: calc(13px * var(--card-font-scale, 1));
   line-height: 1.7;
   overflow-x: auto;
   position: relative;
-  border: 1px solid;
+  border: none;
+}
+
+/* 强制覆盖 highlight.js 的背景色 */
+.card__code-block code {
+  background: none !important;
+}
+.card__code-block code span {
+  background: none !important;
+}
+
+/* 终端外壳 - 整体设计 */
+.card__code-terminal {
+  margin: 10px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+.card__code-terminal-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  position: relative;
+}
+.card__code-terminal-buttons {
+  display: flex;
+  gap: 8px;
+  z-index: 1;
+}
+.card__code-terminal-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  transition: opacity 0.2s;
+}
+.card__code-terminal-btn--close {
+  background: #ff5f56;
+}
+.card__code-terminal-btn--minimize {
+  background: #ffbd2e;
+}
+.card__code-terminal-btn--maximize {
+  background: #27c93f;
+}
+.card__code-terminal:hover .card__code-terminal-btn {
+  opacity: 0.8;
+}
+.card__code-terminal-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: lowercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
 }
 
 /* GitHub 主题（默认） */
 .card__code-block[data-theme="github"],
 .card__code-block:not([data-theme]) {
   background: #f6f8fa;
-  color: #24292e;
-  border-color: #e1e4e8;
 }
-.card__code-block[data-theme="github"] .card__code-lang,
-.card__code-block:not([data-theme]) .card__code-lang {
+.card__code-terminal[data-theme="github"],
+.card__code-terminal:not([data-theme]) {
+  background: #f6f8fa;
+}
+.card__code-terminal[data-theme="github"] .card__code-terminal-header,
+.card__code-terminal:not([data-theme]) .card__code-terminal-header {
+  background: #f6f8fa;
+}
+.card__code-terminal[data-theme="github"] .card__code-terminal-title,
+.card__code-terminal:not([data-theme]) .card__code-terminal-title {
   color: #6a737d;
 }
 
 /* 暗黑主题 */
 .card__code-block[data-theme="dark"] {
   background: #1a1a2e;
-  color: #a9b7c6;
-  border-color: #2a2a3e;
 }
-.card__code-block[data-theme="dark"] .card__code-lang {
+.card__code-terminal[data-theme="dark"] {
+  background: #1a1a2e;
+}
+.card__code-terminal[data-theme="dark"] .card__code-terminal-header {
+  background: #1a1a2e;
+}
+.card__code-terminal[data-theme="dark"] .card__code-terminal-title {
   color: #8a939e;
 }
 
 /* Solarized 主题 */
 .card__code-block[data-theme="solarized"] {
   background: #fdf6e3;
-  color: #657b83;
-  border-color: #eee8d5;
 }
-.card__code-block[data-theme="solarized"] .card__code-lang {
+.card__code-terminal[data-theme="solarized"] {
+  background: #fdf6e3;
+}
+.card__code-terminal[data-theme="solarized"] .card__code-terminal-header {
+  background: #fdf6e3;
+}
+.card__code-terminal[data-theme="solarized"] .card__code-terminal-title {
   color: #93a1a1;
 }
 
 /* Monokai 主题 */
 .card__code-block[data-theme="monokai"] {
   background: #272822;
-  color: #f8f8f2;
-  border-color: #3e3d32;
 }
-.card__code-block[data-theme="monokai"] .card__code-lang {
+.card__code-terminal[data-theme="monokai"] {
+  background: #272822;
+}
+.card__code-terminal[data-theme="monokai"] .card__code-terminal-header {
+  background: #272822;
+}
+.card__code-terminal[data-theme="monokai"] .card__code-terminal-title {
   color: #75715e;
 }
 .card__code-block code {

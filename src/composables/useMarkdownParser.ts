@@ -1,4 +1,5 @@
 import { marked } from 'marked'
+import hljs from 'highlight.js'
 import type { CardData } from '@/types/card'
 
 export interface MultiPageResult {
@@ -6,10 +7,57 @@ export interface MultiPageResult {
   totalPages: number
 }
 
-// 配置 marked：开启 GFM、换行
+// 配置 marked：开启 GFM、换行、自定义代码块渲染
+const renderer = new marked.Renderer()
+
+// 自定义代码块渲染：应用语法高亮并添加终端外壳
+renderer.code = ({ text, lang }: { text: string; lang?: string }) => {
+  let highlighted = text
+  
+  // 应用语法高亮
+  if (lang && hljs.getLanguage(lang)) {
+    try {
+      highlighted = hljs.highlight(text, { language: lang }).value
+    } catch (err) {
+      console.warn('Failed to highlight code:', err)
+    }
+  } else {
+    // 自动检测语言或无高亮
+    try {
+      const result = hljs.highlightAuto(text)
+      highlighted = result.value
+    } catch (err) {
+      // 如果高亮失败，转义 HTML
+      highlighted = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+    }
+  }
+  
+  const language = lang || 'text'
+  
+  // 生成终端样式的代码块
+  return `
+<div class="card__code-terminal">
+  <div class="card__code-terminal-header">
+    <div class="card__code-terminal-buttons">
+      <span class="card__code-terminal-btn card__code-terminal-btn--close"></span>
+      <span class="card__code-terminal-btn card__code-terminal-btn--minimize"></span>
+      <span class="card__code-terminal-btn card__code-terminal-btn--maximize"></span>
+    </div>
+    <div class="card__code-terminal-title">${language}</div>
+  </div>
+  <pre class="card__code-block"><code class="language-${language}">${highlighted}</code></pre>
+</div>`
+}
+
 marked.setOptions({
   gfm: true,
-  breaks: true
+  breaks: true,
+  renderer: renderer
 })
 
 /**

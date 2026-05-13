@@ -118,6 +118,7 @@ import CardRenderer from '@/components/card/CardRenderer.vue'
 import StyleSelector from '@/components/converter/StyleSelector.vue'
 import CodeThemeSelector from '@/components/converter/CodeThemeSelector.vue'
 import FontSelector from '@/components/converter/FontSelector.vue'
+import { loadCodeTheme } from '@/utils/codeThemeLoader'
 
 const store = useCardStore()
 const { exportElement } = useCardExport()
@@ -229,7 +230,13 @@ function setCanvasRef(el: any, idx: number) {
 }
 
 onMounted(() => {
-  // 初始化
+  // 初始化加载代码主题
+  loadCodeTheme(store.codeTheme)
+})
+
+// 监听代码主题变化
+watch(() => store.codeTheme, (newTheme) => {
+  loadCodeTheme(newTheme)
 })
 
 async function handleExportCurrent() {
