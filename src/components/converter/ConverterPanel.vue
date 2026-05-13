@@ -60,28 +60,6 @@
       </div>
     </div>
 
-    <div class="converter-panel__section converter-panel__row">
-      <div class="converter-panel__field">
-        <label>标题</label>
-        <input v-model="store.cardTitle" type="text" placeholder="卡片主标题" />
-      </div>
-      <div class="converter-panel__field">
-        <label>副标题</label>
-        <input v-model="store.cardSubtitle" type="text" placeholder="卡片副标题（可选）" />
-      </div>
-    </div>
-
-    <div class="converter-panel__section converter-panel__row">
-      <div class="converter-panel__field">
-        <label>分类</label>
-        <input v-model="store.cardCategory" type="text" placeholder="如：Tutorial" />
-      </div>
-      <div class="converter-panel__field">
-        <label>标签</label>
-        <input v-model="store.cardTags" type="text" placeholder="用空格或逗号分隔" />
-      </div>
-    </div>
-
     <div class="converter-panel__page-info">
       <span>共 {{ store.pageSources.length }} 页</span>
       <div class="converter-panel__page-nav">

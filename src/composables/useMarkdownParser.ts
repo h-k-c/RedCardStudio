@@ -237,13 +237,77 @@ export function useMarkdownParser() {
     }
 
     let currentStep: { title: string; desc: string; tip: string } | null = null
+    let inCodeBlock = false
+    let codeBlockContent = ''
+    let codeBlockLang = ''
 
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
       const trimmed = line.trim()
+
+      // 代码块处理
+      if (trimmed.startsWith('```')) {
+        if (!inCodeBlock) {
+          inCodeBlock = true
+          codeBlockLang = trimmed.slice(3).trim()
+          codeBlockContent = ''
+        } else {
+          inCodeBlock = false
+          if (currentStep) {
+            const langLabel = codeBlockLang ? `<span class="card__code-lang">${codeBlockLang}</span>` : ''
+            currentStep.desc += `<pre class="card__code-block">${langLabel}<code>${escapeHtml(codeBlockContent)}</code></pre>`
+          }
+          codeBlockLang = ''
+        }
+        continue
+      }
+
+      if (inCodeBlock) {
+        codeBlockContent += (codeBlockContent ? '\n' : '') + line
+        continue
+      }
+
+      // 封面图 ![cover](url)
+      const coverMatch = trimmed.match(/^!\[cover\]\((.+)\)$/)
+      if (coverMatch && !result.coverImage) {
+        result.coverImage = coverMatch[1]
+        continue
+      }
+
+      // 主标题 #
+      if (trimmed.startsWith('# ') && !trimmed.startsWith('## ') && !result.title) {
+        result.title = trimmed.slice(2).trim()
+        continue
+      }
+
+      // 副标题 > (紧跟主标题后，且不是 tip)
+      if (trimmed.startsWith('> ') && result.title && result.steps.length === 0 && !trimmed.startsWith('> 💡')) {
+        result.subtitle = renderInline(trimmed.slice(2).trim())
+        continue
+      }
+
+      // 分割线后是分类
+      if (trimmed === '---') {
+        if (i + 1 < lines.length) {
+          result.category = lines[i + 1].trim()
+          i++
+        }
+        continue
+      }
+
+      // 标签行 (独立一行全是 #tag 格式)
+      if (/^(#[^\s#]+\s*)+$/.test(trimmed) && !currentStep) {
+        const tagMatches = trimmed.match(/#([^\s#]+)/g)
+        if (tagMatches) {
+          result.tags.push(...tagMatches.map(t => t.slice(1)))
+        }
+        continue
+      }
 
       // 步骤标题（支持 ## 和 ###）
       if ((trimmed.startsWith('## ') || trimmed.startsWith('### ')) && !trimmed.startsWith('#### ')) {
         if (currentStep) {
+          currentStep.desc = finalizeDesc(currentStep.desc)
           result.steps.push(currentStep)
         }
         // 去掉 ## 或 ### 前缀
@@ -252,41 +316,47 @@ export function useMarkdownParser() {
         continue
       }
 
-      // 收集步骤描述（原始 Markdown）
+      // 提示 (在步骤内的 > )
+      if (trimmed.startsWith('> ') && currentStep) {
+        const tipText = trimmed.slice(2).replace(/^💡\s*/, '').replace(/^[Tt]ip:\s*/, '').trim()
+        currentStep.tip = renderInline(tipText)
+        continue
+      }
+
+      // 普通文本 → 步骤描述（收集原始 markdown）
       if (currentStep) {
         currentStep.desc += (currentStep.desc ? '\n' : '') + line
       }
     }
 
-    // 添加最后一个步骤
     if (currentStep) {
+      currentStep.desc = finalizeDesc(currentStep.desc)
       result.steps.push(currentStep)
     }
 
-    // 将所有步骤描述转为 HTML（直接使用 marked，不特殊处理）
-    for (const step of result.steps) {
-      // 分离提示（> 开头的行）
-      const descLines = step.desc.split('\n')
-      const tipIndex = descLines.findIndex(l => l.trim().startsWith('> '))
-      
-      if (tipIndex !== -1) {
-        // 提取提示
-        const tipText = descLines[tipIndex].trim().slice(2)
-          .replace(/^💡\s*/, '')
-          .replace(/^[Tt]ip:\s*/, '')
-          .trim()
-        step.tip = renderInline(tipText)
-        
-        // 移除提示行
-        descLines.splice(tipIndex, 1)
-        step.desc = descLines.join('\n')
-      }
-      
-      // 描述转 HTML
-      step.desc = step.desc.trim() ? renderInline(step.desc.trim()) : ''
-    }
-
     return result
+  }
+
+  function escapeHtml(str: string): string {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+  }
+
+  function finalizeDesc(raw: string): string {
+    if (!raw) return ''
+    
+    // 如果含有代码块 HTML（已处理过），保留并渲染其余部分
+    if (raw.includes('<pre class="card__code-block">')) {
+      const parts = raw.split(/(<pre class="card__code-block">[\s\S]*?<\/pre>)/)
+      return parts.map(part => {
+        if (part.startsWith('<pre class="card__code-block">')) return part
+        return part.trim() ? renderInline(part.trim()) : ''
+      }).filter(Boolean).join('')
+    }
+    return renderInline(raw.trim())
   }
 
   return { parse, parseMultiPage, parseSinglePage }
