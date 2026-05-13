@@ -11,19 +11,15 @@ export function useCardExport() {
     const originalParentWidth = parent?.style.width || ''
     const originalParentHeight = parent?.style.height || ''
 
-    // 隐藏元素，避免用户看到样式变化
-    el.style.visibility = 'hidden'
-    el.style.position = 'absolute'
-    el.style.left = '-9999px'
-    
+    // 设置为正常渲染状态
     el.style.zoom = '1'
     el.style.transform = 'scale(1)'
     el.style.transition = 'none'
     
     if (parent) {
       parent.style.overflow = 'visible'
-      parent.style.width = 'auto'
-      parent.style.height = 'auto'
+      parent.style.width = '1080px'
+      parent.style.height = '1440px'
     }
 
     try {
@@ -46,9 +42,6 @@ export function useCardExport() {
       el.style.zoom = originalZoom
       el.style.transform = originalTransform
       el.style.transition = originalTransition
-      el.style.visibility = ''
-      el.style.position = ''
-      el.style.left = ''
       
       if (parent) {
         parent.style.overflow = originalOverflow
