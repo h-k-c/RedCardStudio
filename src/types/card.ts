@@ -13,6 +13,10 @@ export interface CardPageStyle {
   headerText?: string
   author?: string
   codeTheme?: string
+  cardTitle?: string
+  cardSubtitle?: string
+  cardCategory?: string
+  cardTags?: string
 }
 
 export interface CardData {
