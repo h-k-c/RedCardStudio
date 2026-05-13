@@ -60,6 +60,10 @@
               :data="pageData"
               :author="pageData.pageStyle?.author || store.author"
               :page="`${String(idx + 1).padStart(2, '0')} / ${String(store.totalPages).padStart(2, '0')}`"
+              :title="pageData.pageStyle?.cardTitle || store.cardTitle || '标题'"
+              :subtitle="pageData.pageStyle?.cardSubtitle || store.cardSubtitle"
+              :header-text="pageData.pageStyle?.headerText || store.headerText"
+              :footer-slogan="store.footerSlogan"
               :code-theme="pageData.pageStyle?.codeTheme || store.codeTheme"
             />
           </CardCanvas>

@@ -1,23 +1,20 @@
 <template>
-  <div ref="cardRef" v-if="headerText" class="card__header">{{ headerText }}</div>
-  <img v-if="data.coverImage" class="card__cover-img" :src="data.coverImage" alt="" />
-  <div class="card__category">{{ data.category }}</div>
-  <h1 class="card__title">{{ data.title }}</h1>
-  <p v-if="data.subtitle" class="card__subtitle" v-html="data.subtitle"></p>
+  <!-- 固定区域：页眉 -->
+  <div v-if="headerText" class="card__header">{{ headerText }}</div>
+  
+  <!-- 固定区域：标题 -->
+  <h1 class="card__title">{{ title }}</h1>
+  
+  <!-- 固定区域：副标题 -->
+  <p v-if="subtitle" class="card__subtitle">{{ subtitle }}</p>
+  
+  <!-- 分割线 -->
   <div class="card__divider"></div>
-  <div class="card__steps">
-    <div v-for="(step, idx) in data.steps" :key="idx" class="card__step">
-      <span class="card__step-num">{{ romanNumeral(idx + 1) }}</span>
-      <div>
-        <div class="card__step-title">{{ step.title }}</div>
-        <div class="card__step-desc" v-html="step.desc"></div>
-        <div v-if="step.tip" class="card__step-tip" v-html="step.tip"></div>
-      </div>
-    </div>
-  </div>
-  <div v-if="data.tags.length" class="card__tags">
-    <span v-for="tag in data.tags" :key="tag" class="card__tag">#{{ tag }}</span>
-  </div>
+  
+  <!-- 动态内容区域：Markdown HTML -->
+  <div class="card__markdown-content" v-html="data.fullHtml"></div>
+  
+  <!-- 固定区域：页脚 -->
   <div class="card__footer" v-if="author || page">
     <span v-if="author">@{{ author }}</span>
     <span v-if="page">{{ page }}</span>
@@ -32,23 +29,23 @@ const props = defineProps<{
   data: CardData
   author: string
   page: string
+  title?: string
+  subtitle?: string
   headerText?: string
   footerSlogan?: string
   codeTheme?: string
 }>()
 
-const ROMAN = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x']
-function romanNumeral(n: number): string {
-  return ROMAN[n - 1] ?? String(n)
-}
-
 // 为代码块添加 data-theme 属性
 function applyCodeTheme() {
   if (!props.codeTheme) return
   nextTick(() => {
-    const codeBlocks = document.querySelectorAll('.card__code-block')
+    const codeBlocks = document.querySelectorAll('pre code')
     codeBlocks.forEach(block => {
-      block.setAttribute('data-theme', props.codeTheme || 'github')
+      const pre = block.parentElement
+      if (pre) {
+        pre.setAttribute('data-theme', props.codeTheme || 'github')
+      }
     })
   })
 }

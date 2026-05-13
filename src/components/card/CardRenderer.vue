@@ -4,7 +4,10 @@
     :data="data"
     :author="author"
     :page="page"
+    :title="title"
+    :subtitle="subtitle"
     :header-text="headerText"
+    :footer-slogan="footerSlogan"
     :code-theme="codeTheme"
   />
 </template>
@@ -20,7 +23,10 @@ const props = defineProps<{
   data: CardData
   author: string
   page: string
+  title?: string
+  subtitle?: string
   headerText?: string
+  footerSlogan?: string
   codeTheme?: string
 }>()
 

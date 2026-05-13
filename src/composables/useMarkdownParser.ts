@@ -165,46 +165,56 @@ function estimateTotalHeight(data: CardData, fontScale: number = 100): number {
 }
 
 /** 是否需要对这张卡片做自动分页 */
-function needsAutoSplit(data: CardData, maxSteps: number): boolean {
-  if (data.steps.length > maxSteps) return true
-  return estimateTotalHeight(data) > CARD_HEIGHT
+function needsAutoSplit(md: string, maxSteps: number): boolean {
+  // 统计 ## 标题数量
+  const headingCount = (md.match(/^#{2,3}\s/gm) || []).length
+  if (headingCount > maxSteps) return true
+    
+  // 估算内容高度（简化版：按行数）
+  const lines = md.split('\n').length
+  const estimatedHeight = lines * 30 // 每行约 30px
+  return estimatedHeight > CARD_HEIGHT
 }
 
-/** 按 ## 标题进行简单分页 */
-function autoSplitByHeadings(data: CardData, maxSteps: number): MultiPageResult {
-  const pages: CardData[] = []
-  let chunk: typeof data.steps = []
 
-  for (const step of data.steps) {
-    chunk.push(step)
-
-    // 每 maxSteps 个步骤分一页
-    if (chunk.length >= maxSteps) {
-      pages.push(buildPage(data, chunk, pages.length + 1))
-      chunk = []
-    }
-  }
-
-  // 最后一页
-  if (chunk.length > 0) {
-    pages.push(buildPage(data, chunk, pages.length + 1))
-  }
-
-  return { pages, totalPages: pages.length }
-}
-
-function buildPage(data: CardData, steps: typeof data.steps, pageIndex: number): CardData {
-  return {
-    title: data.title,
-    subtitle: pageIndex === 1 ? data.subtitle : '',
-    category: data.category,
-    steps,
-    tags: pageIndex === 1 ? data.tags : [],
-    coverImage: pageIndex === 1 ? data.coverImage : undefined,
-  }
-}
 
 export function useMarkdownParser() {
+  /** 按 ## 标题进行简单分页 */
+  function autoSplitByHeadings(md: string, maxSteps: number): MultiPageResult {
+    // 按 ## 或 ### 标题分割 Markdown 文本
+    const lines = md.split('\n')
+    const chunks: string[] = []
+    let currentChunk = ''
+    let headingCount = 0
+
+    for (const line of lines) {
+      const trimmed = line.trim()
+      // 检查是否是 ## 或 ### 标题
+      if (trimmed.match(/^#{2,3}\s/)) {
+        // 如果当前块有内容，保存
+        if (currentChunk.trim()) {
+          chunks.push(currentChunk.trim())
+          currentChunk = ''
+        }
+        headingCount++
+      }
+      currentChunk += line + '\n'
+    }
+
+    // 添加最后一块
+    if (currentChunk.trim()) {
+      chunks.push(currentChunk.trim())
+    }
+
+    // 按 maxSteps 分组
+    const pages: CardData[] = []
+    for (let i = 0; i < chunks.length; i += maxSteps) {
+      const group = chunks.slice(i, i + maxSteps).join('\n\n')
+      pages.push(parseSinglePage(group))
+    }
+
+    return { pages, totalPages: pages.length }
+  }
   function parse(md: string): CardData {
     return parseSinglePage(md)
   }
@@ -217,109 +227,27 @@ export function useMarkdownParser() {
       return { pages, totalPages: pages.length }
     }
 
-    const singleResult = parseSinglePage(md)
-    if (autoSplitMax && autoSplitMax > 0 && needsAutoSplit(singleResult, autoSplitMax)) {
-      return autoSplitByHeadings(singleResult, autoSplitMax)
+    if (autoSplitMax && autoSplitMax > 0 && needsAutoSplit(md, autoSplitMax)) {
+      return autoSplitByHeadings(md, autoSplitMax)
     }
 
+    const singleResult = parseSinglePage(md)
     return { pages: [singleResult], totalPages: 1 }
   }
 
   function parseSinglePage(md: string): CardData {
-    const lines = md.trim().split('\n')
-    const result: CardData = {
+    // 直接将整个 Markdown 转为 HTML，不做任何特殊解析
+    const html = marked.parse(md, { async: false }) as string
+    
+    return {
       title: '',
       subtitle: '',
       category: '',
       steps: [],
       tags: [],
       coverImage: undefined,
+      fullHtml: html  // 完整的 HTML 内容
     }
-
-    let currentStep: { title: string; desc: string; tip: string } | null = null
-    let inCodeBlock = false
-    let codeBlockContent = ''
-    let codeBlockLang = ''
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-      const trimmed = line.trim()
-
-      // 代码块处理
-      if (trimmed.startsWith('```')) {
-        if (!inCodeBlock) {
-          inCodeBlock = true
-          codeBlockLang = trimmed.slice(3).trim()
-          codeBlockContent = ''
-        } else {
-          inCodeBlock = false
-          if (currentStep) {
-            const langLabel = codeBlockLang ? `<span class="card__code-lang">${codeBlockLang}</span>` : ''
-            currentStep.desc += `<pre class="card__code-block">${langLabel}<code>${escapeHtml(codeBlockContent)}</code></pre>`
-          }
-          codeBlockLang = ''
-        }
-        continue
-      }
-
-      if (inCodeBlock) {
-        codeBlockContent += (codeBlockContent ? '\n' : '') + line
-        continue
-      }
-
-      // 步骤标题（支持 ## 和 ###）
-      if ((trimmed.startsWith('## ') || trimmed.startsWith('### ')) && !trimmed.startsWith('#### ')) {
-        if (currentStep) {
-          currentStep.desc = finalizeDesc(currentStep.desc)
-          result.steps.push(currentStep)
-        }
-        // 去掉 ## 或 ### 前缀
-        const titleText = trimmed.startsWith('### ') ? trimmed.slice(4) : trimmed.slice(3)
-        currentStep = { title: titleText.trim(), desc: '', tip: '' }
-        continue
-      }
-
-      // 提示 (在步骤内的 > )
-      if (trimmed.startsWith('> ') && currentStep) {
-        const tipText = trimmed.slice(2).replace(/^💡\s*/, '').replace(/^[Tt]ip:\s*/, '').trim()
-        currentStep.tip = renderInline(tipText)
-        continue
-      }
-
-      // 普通文本 → 步骤描述（收集原始 markdown）
-      if (currentStep) {
-        currentStep.desc += (currentStep.desc ? '\n' : '') + line
-      }
-    }
-
-    if (currentStep) {
-      currentStep.desc = finalizeDesc(currentStep.desc)
-      result.steps.push(currentStep)
-    }
-
-    return result
-  }
-
-  function escapeHtml(str: string): string {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-  }
-
-  function finalizeDesc(raw: string): string {
-    if (!raw) return ''
-    
-    // 如果含有代码块 HTML（已处理过），保留并渲染其余部分
-    if (raw.includes('<pre class="card__code-block">')) {
-      const parts = raw.split(/(<pre class="card__code-block">[\s\S]*?<\/pre>)/)
-      return parts.map(part => {
-        if (part.startsWith('<pre class="card__code-block">')) return part
-        return part.trim() ? renderInline(part.trim()) : ''
-      }).filter(Boolean).join('')
-    }
-    return renderInline(raw.trim())
   }
 
   return { parse, parseMultiPage, parseSinglePage }

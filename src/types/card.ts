@@ -26,6 +26,8 @@ export interface CardData {
   steps: CardStep[]
   tags: string[]
   coverImage?: string
+  // 完整的 Markdown HTML 内容（直接渲染）
+  fullHtml?: string
   // 页面独立样式（锁定后使用）
   pageStyle?: CardPageStyle | null
 }
