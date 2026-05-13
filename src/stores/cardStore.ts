@@ -43,6 +43,13 @@ export const useCardStore = defineStore('card', () => {
         }
       )
       const pageData = parseSinglePage(resolved)
+      
+      // 补充设置栏的元数据
+      pageData.title = headerText.value || '标题'
+      pageData.subtitle = ''
+      pageData.category = defaultCategory.value
+      pageData.tags = []
+      
       // 附加页面独立样式
       pageData.pageStyle = pageStyles.value[index] || null
       return pageData
@@ -92,7 +99,7 @@ export const useCardStore = defineStore('card', () => {
   }
 
   function addPage() {
-    const template = `# 新页面\n\n> 副标题\n\n## 步骤一\n在这里输入内容...\n`
+    const template = `## 步骤一\n在这里输入内容...\n`
     pageSources.value.splice(currentPageIndex.value + 1, 0, template)
     pageStyles.value.splice(currentPageIndex.value + 1, 0, null)
     currentPageIndex.value++
