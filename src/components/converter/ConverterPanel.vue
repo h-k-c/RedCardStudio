@@ -17,7 +17,36 @@
       <StyleSelector v-model="store.currentStyle" />
     </div>
 
+    <!-- 卡片元数据设置 -->
+    <div class="converter-panel__section converter-panel__section--highlight">
+      <div class="converter-panel__section-title">📝 卡片信息</div>
+      <div class="converter-panel__row">
+        <div class="converter-panel__field">
+          <label>标题 <span class="converter-panel__required">*</span></label>
+          <input v-model="store.cardTitle" type="text" placeholder="卡片主标题" />
+        </div>
+      </div>
+      <div class="converter-panel__row">
+        <div class="converter-panel__field">
+          <label>副标题</label>
+          <input v-model="store.cardSubtitle" type="text" placeholder="卡片副标题（可选）" />
+        </div>
+      </div>
+      <div class="converter-panel__row">
+        <div class="converter-panel__field">
+          <label>分类</label>
+          <input v-model="store.cardCategory" type="text" placeholder="如：Tutorial" />
+        </div>
+        <div class="converter-panel__field">
+          <label>标签</label>
+          <input v-model="store.cardTags" type="text" placeholder="空格或逗号分隔" />
+        </div>
+      </div>
+    </div>
+
+    <!-- 样式设置 -->
     <div class="converter-panel__section">
+      <div class="converter-panel__section-title">🎨 样式配置</div>
       <FontSelector
         :title-font="store.titleFont"
         :body-font="store.bodyFont"
@@ -57,28 +86,6 @@
       <div class="converter-panel__field">
         <label>页脚标语</label>
         <input v-model="store.footerSlogan" type="text" placeholder="如：关注获取更多" />
-      </div>
-    </div>
-
-    <div class="converter-panel__section converter-panel__row">
-      <div class="converter-panel__field">
-        <label>标题</label>
-        <input v-model="store.cardTitle" type="text" placeholder="卡片主标题" />
-      </div>
-      <div class="converter-panel__field">
-        <label>副标题</label>
-        <input v-model="store.cardSubtitle" type="text" placeholder="卡片副标题（可选）" />
-      </div>
-    </div>
-
-    <div class="converter-panel__section converter-panel__row">
-      <div class="converter-panel__field">
-        <label>分类</label>
-        <input v-model="store.cardCategory" type="text" placeholder="如：Tutorial" />
-      </div>
-      <div class="converter-panel__field">
-        <label>标签</label>
-        <input v-model="store.cardTags" type="text" placeholder="用空格或逗号分隔" />
       </div>
     </div>
 
@@ -152,6 +159,25 @@ defineEmits<{ export: []; exportAll: [] }>()
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+.converter-panel__section--highlight {
+  background: #FFF;
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid #6C5CE7;
+  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.1);
+}
+.converter-panel__section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #EEE;
+}
+.converter-panel__required {
+  color: #E74C3C;
+  font-weight: bold;
 }
 .converter-panel__hint {
   font-size: 11px;
