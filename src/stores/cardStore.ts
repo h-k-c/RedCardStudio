@@ -7,7 +7,7 @@ import { STYLE_REGISTRY } from '@/data/styleRegistry'
 import { useImageStore } from './imageStore'
 
 export const useCardStore = defineStore('card', () => {
-  const { parseSinglePage } = useMarkdownParser()
+  const { parseSinglePage, parseMultiPage } = useMarkdownParser()
   const imageStore = useImageStore()
 
   const pageSources = ref<string[]>([''])
@@ -35,19 +35,15 @@ export const useCardStore = defineStore('card', () => {
   // 代码主题配置
   const codeTheme = ref<'github' | 'dark' | 'solarized' | 'monokai'>('github')
 
-  // 为每一页解析 Markdown 数据
+  // 为每一页解析 Markdown 数据（支持自动分页和手动分页）
   const pages = computed<CardData[]>(() => {
-    return pageSources.value.map((source, index) => {
-      // 替换图片占位符
-      const resolved = source.replace(
-        /!\[([^\]]*)\]\((img-\d+)\)/g,
-        (_: string, alt: string, id: string) => {
-          const url = imageStore.getUrl(id)
-          return url ? `![${alt}](${url})` : `![${alt}]()`
-        }
-      )
-      const pageData = parseSinglePage(resolved)
-      
+    // 将所有 pageSources 合并成完整 Markdown
+    const fullMarkdown = pageSources.value.join('\n\n===\n\n')
+    
+    // 使用 parseMultiPage 进行分页（自动+手动）
+    const multiPageResult = parseMultiPage(fullMarkdown, autoSplitMax.value)
+    
+    return multiPageResult.pages.map((pageData, index) => {
       // 优先使用页面锁定的元数据，否则使用全局设置
       const pageStyle = pageStyles.value[index]
       pageData.title = pageStyle?.cardTitle || cardTitle.value || '标题'

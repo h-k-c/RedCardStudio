@@ -2,24 +2,21 @@
   <div class="card__corner card__corner--tl"></div>
   <div class="card__corner card__corner--br"></div>
   
-  <!-- 正文卡片：只显示步骤内容 -->
-  <div class="card__steps" v-if="data.steps && data.steps.length > 0">
-    <div v-for="(step, idx) in data.steps" :key="idx" class="card__step">
-      <span class="card__step-num">{{ padNumber(idx + 1) }}</span>
-      <div>
-        <div class="card__step-title">{{ step.title }}</div>
-        <div class="card__step-desc" v-html="step.desc"></div>
-        <div v-if="step.tip" class="card__step-tip" v-html="'💡 ' + step.tip"></div>
-      </div>
-    </div>
-  </div>
-  <div v-else class="card__empty-hint">
-    <p>在左侧编辑器中输入 Markdown 内容</p>
-  </div>
+  <!-- 固定区域：页眉 -->
+  <div v-if="headerText" class="card__header">{{ headerText }}</div>
   
-  <div v-if="data.tags && data.tags.length" class="card__tags">
-    <span v-for="tag in data.tags" :key="tag" class="card__tag">#{{ tag }}</span>
-  </div>
+  <!-- 固定区域：标题 -->
+  <h1 class="card__title">{{ title }}</h1>
+  
+  <!-- 固定区域：副标题 -->
+  <p v-if="subtitle" class="card__subtitle">{{ subtitle }}</p>
+  
+  <div class="card__divider"></div>
+  
+  <!-- 动态内容区域：Markdown HTML -->
+  <div class="card__markdown-content" v-html="data.fullHtml"></div>
+  
+  <!-- 固定区域：页脚 -->
   <div class="card__footer" v-if="author || page">
     <span v-if="author" class="card__footer--left">@{{ author }}</span>
     <span v-if="page" class="card__footer--right">{{ page }}</span>
@@ -29,12 +26,15 @@
 <script setup lang="ts">
 import { watch, onMounted, nextTick } from 'vue'
 import type { CardData } from '@/types/card'
-import { padNumber } from '@/utils/helpers'
 
 const props = defineProps<{
   data: CardData
   author: string
   page: string
+  title?: string
+  subtitle?: string
+  headerText?: string
+  footerSlogan?: string
   codeTheme?: string
 }>()
 
@@ -42,9 +42,12 @@ const props = defineProps<{
 function applyCodeTheme() {
   if (!props.codeTheme) return
   nextTick(() => {
-    const codeBlocks = document.querySelectorAll('.card__code-block')
+    const codeBlocks = document.querySelectorAll('pre code')
     codeBlocks.forEach(block => {
-      block.setAttribute('data-theme', props.codeTheme || 'github')
+      const pre = block.parentElement
+      if (pre) {
+        pre.setAttribute('data-theme', props.codeTheme || 'github')
+      }
     })
   })
 }
