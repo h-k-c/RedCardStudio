@@ -1,23 +1,6 @@
 <template>
   <aside class="converter-panel">
-    <div class="converter-panel__section">
-      <div class="converter-panel__editor-header">
-        <label class="markdown-editor__label">Markdown 内容</label>
-        <span class="converter-panel__page-label" v-if="store.pageSources.length > 1">
-          第 {{ store.currentPageIndex + 1 }} / {{ store.pageSources.length }} 页
-        </span>
-      </div>
-      <MarkdownEditor v-model="store.currentPageSource" />
-      <div class="converter-panel__hint">
-        切换右侧预览页，左侧自动跟随编辑对应页内容
-      </div>
-    </div>
-
-    <div class="converter-panel__section">
-      <StyleSelector v-model="store.currentStyle" />
-    </div>
-
-    <!-- 卡片元数据设置 -->
+    <!-- 卡片元数据设置 - 最顶部 -->
     <div class="converter-panel__section converter-panel__section--highlight">
       <div class="converter-panel__section-title">📝 卡片信息</div>
       <div class="converter-panel__row">
@@ -42,6 +25,23 @@
           <input v-model="store.cardTags" type="text" placeholder="空格或逗号分隔" />
         </div>
       </div>
+    </div>
+
+    <div class="converter-panel__section">
+      <div class="converter-panel__editor-header">
+        <label class="markdown-editor__label">Markdown 内容</label>
+        <span class="converter-panel__page-label" v-if="store.pageSources.length > 1">
+          第 {{ store.currentPageIndex + 1 }} / {{ store.pageSources.length }} 页
+        </span>
+      </div>
+      <MarkdownEditor v-model="store.currentPageSource" />
+      <div class="converter-panel__hint">
+        切换右侧预览页，左侧自动跟随编辑对应页内容
+      </div>
+    </div>
+
+    <div class="converter-panel__section">
+      <StyleSelector v-model="store.currentStyle" />
     </div>
 
     <!-- 样式设置 -->

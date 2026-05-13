@@ -47,7 +47,27 @@
 
     <div class="font-selector__divider"></div>
 
-    <label class="font-selector__label">卡片信息</label>
+    <label class="font-selector__label">卡片设置</label>
+    <div class="font-selector__field">
+      <span class="font-selector__sub">标题 *</span>
+      <input
+        type="text"
+        :value="cardTitle"
+        @input="$emit('update:cardTitle', ($event.target as HTMLInputElement).value)"
+        placeholder="卡片主标题"
+        class="font-selector__input"
+      />
+    </div>
+    <div class="font-selector__field">
+      <span class="font-selector__sub">副标题</span>
+      <input
+        type="text"
+        :value="cardSubtitle"
+        @input="$emit('update:cardSubtitle', ($event.target as HTMLInputElement).value)"
+        placeholder="卡片副标题（可选）"
+        class="font-selector__input"
+      />
+    </div>
     <div class="font-selector__field">
       <span class="font-selector__sub">左上角标语</span>
       <input
@@ -82,6 +102,8 @@ const props = defineProps<{
   fontWeight: number
   headerText: string
   author: string
+  cardTitle: string
+  cardSubtitle: string
 }>()
 
 defineEmits<{ 
@@ -91,6 +113,8 @@ defineEmits<{
   'update:fontWeight': [value: number]
   'update:headerText': [value: string]
   'update:author': [value: string]
+  'update:cardTitle': [value: string]
+  'update:cardSubtitle': [value: string]
 }>()
 
 const fontWeightLabel = computed(() => {
@@ -106,14 +130,32 @@ const fontWeightLabel = computed(() => {
 })
 
 const fonts = [
+  // 中文字体 - 无衬线
   { label: '思源黑体', value: '"Noto Sans SC", sans-serif' },
+  { label: '苹方', value: '"PingFang SC", sans-serif' },
+  { label: '微软雅黑', value: '"Microsoft YaHei", sans-serif' },
+  
+  // 中文字体 - 衬线/宋体
   { label: '思源宋体', value: '"Noto Serif SC", serif' },
-  { label: 'Inter', value: '"Inter", sans-serif' },
-  { label: 'Playfair Display', value: '"Playfair Display", serif' },
-  { label: 'JetBrains Mono', value: '"JetBrains Mono", monospace' },
-  { label: 'Fredoka', value: '"Fredoka", sans-serif' },
-  { label: 'Lora', value: '"Lora", serif' },
-  { label: 'Cormorant', value: '"Cormorant Garamond", serif' }
+  { label: '方正书宋', value: '"FZShuSong", serif' },
+  { label: '华文宋体', value: '"STSong", serif' },
+  { label: '标楷体', value: '"KaiTi", serif' },
+  
+  // 英文字体 - 衬线（优雅风格）
+  { label: 'Playfair Display（优雅衬线）', value: '"Playfair Display", serif' },
+  { label: 'Lora（文艺衬线）', value: '"Lora", serif' },
+  { label: 'Cormorant（高端衬线）', value: '"Cormorant Garamond", serif' },
+  
+  // 英文字体 - 无衬线（现代风格）
+  { label: 'Inter（现代简洁）', value: '"Inter", sans-serif' },
+  { label: 'Fredoka（圆润可爱）', value: '"Fredoka", sans-serif' },
+  
+  // 手写体
+  { label: 'Dancing Script（优雅手写）', value: '"Dancing Script", cursive' },
+  { label: 'Caveat（随性手写）', value: '"Caveat", cursive' },
+  
+  // 等宽字体
+  { label: '等宽代码体', value: '"JetBrains Mono", monospace' }
 ]
 </script>
 
@@ -121,68 +163,83 @@ const fonts = [
 .font-selector {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
+  width: 100%;
 }
 .font-selector__label {
   font-size: 13px;
   font-weight: 600;
-  color: #444;
+  color: #333;
+  margin: 0;
 }
 .font-selector__row {
   display: flex;
   gap: 10px;
+  width: 100%;
 }
 .font-selector__field {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 .font-selector__sub {
   font-size: 11px;
-  color: #999;
+  color: #666;
+  font-weight: 500;
 }
 .font-selector__field select {
+  width: 100%;
   padding: 8px 10px;
-  border: 1px solid #E0E0E0;
+  border: 1px solid #e0e0e0;
   border-radius: 6px;
   font-size: 12px;
-  background: #FFF;
+  background: #fafafa;
   color: #333;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+.font-selector__field select:hover {
+  border-color: #bbb;
+  background: #fff;
 }
 .font-selector__field select:focus {
   outline: none;
-  border-color: #999;
+  border-color: #667eea;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
 }
 .font-selector__size {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 4px;
 }
 .font-selector__slider-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 .font-selector__slider-label {
   font-size: 11px;
-  color: #999;
+  color: #666;
   user-select: none;
+  font-weight: 500;
+  flex-shrink: 0;
 }
 .font-selector__slider-label--lg {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
 }
 .font-selector__slider {
   flex: 1;
-  height: 4px;
+  min-width: 0;
+  height: 5px;
   -webkit-appearance: none;
   appearance: none;
-  background: #E0E0E0;
-  border-radius: 2px;
+  background: #e0e0e0;
+  border-radius: 3px;
   outline: none;
   cursor: pointer;
 }
@@ -191,67 +248,70 @@ const fonts = [
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #333;
+  background: #667eea;
   cursor: pointer;
-  border: 2px solid #FFF;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  transition: all 0.2s;
+}
+.font-selector__slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
 }
 .font-selector__weight {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 4px;
+  gap: 5px;
 }
 .font-selector__weight select {
+  width: 100%;
   padding: 8px 10px;
-  border: 1px solid #E0E0E0;
+  border: 1px solid #e0e0e0;
   border-radius: 6px;
   font-size: 12px;
-  background: #FFF;
+  background: #fafafa;
   color: #333;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+.font-selector__weight select:hover {
+  border-color: #bbb;
+  background: #fff;
 }
 .font-selector__weight select:focus {
   outline: none;
-  border-color: #999;
+  border-color: #667eea;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
 }
 .font-selector__divider {
   height: 1px;
-  background: #E8E8E8;
-  margin: 8px 0;
+  background: linear-gradient(to right, transparent, #e0e0e0, transparent);
+  margin: 6px 0;
 }
 .font-selector__input {
+  width: 100%;
   padding: 8px 10px;
-  border: 1px solid #E0E0E0;
+  border: 1px solid #e0e0e0;
   border-radius: 6px;
   font-size: 12px;
-  background: #FFF;
+  background: #fafafa;
   color: #333;
-  transition: border-color 0.2s;
-  width: 100%;
+  transition: all 0.2s;
   box-sizing: border-box;
+}
+.font-selector__input:hover {
+  border-color: #bbb;
+  background: #fff;
 }
 .font-selector__input:focus {
   outline: none;
-  border-color: #999;
+  border-color: #667eea;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
 }
 .font-selector__input::placeholder {
-  color: #BBB;
-}
-
-/* FontSelector 滚动条 */
-.font-selector::-webkit-scrollbar {
-  width: 4px;
-}
-.font-selector::-webkit-scrollbar-track {
-  background: transparent;
-}
-.font-selector::-webkit-scrollbar-thumb {
-  background: #dee2e6;
-  border-radius: 2px;
-}
-.font-selector::-webkit-scrollbar-thumb:hover {
-  background: #adb5bd;
+  color: #aaa;
 }
 </style>

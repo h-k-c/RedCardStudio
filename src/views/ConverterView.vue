@@ -6,17 +6,11 @@
         <span class="converter-view__page-label">
           第 {{ store.currentPageIndex + 1 }} / {{ store.pageSources.length }} 页
         </span>
+        <span class="converter-view__shortcut-hint">
+          💡 输入 === 自动分页
+        </span>
         <div class="converter-view__toolbar-btns">
           <button :disabled="store.currentPageIndex <= 0" @click="store.prevPage()">←</button>
-          <button 
-            class="converter-view__toolbar-btns--page-break"
-            @click="handlePageBreakFromToolbar"
-            title="按标题分页（光标后的第一个 ## 或 ### 标题）"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
-            </svg>
-          </button>
           <button :disabled="store.currentPageIndex >= store.pageSources.length - 1" @click="store.nextPage()">→</button>
           <button @click="store.addPage()">＋</button>
           <button
@@ -56,15 +50,15 @@
             :extra-style="fontOverrideStyle"
           >
             <CardRenderer
-              :card-style="(pageData.pageStyle?.style || store.currentStyle) as any"
+              :card-style="store.currentStyle"
               :data="pageData"
-              :author="pageData.pageStyle?.author || store.author"
+              :author="store.author"
               :page="`${String(idx + 1).padStart(2, '0')} / ${String(store.totalPages).padStart(2, '0')}`"
-              :title="pageData.pageStyle?.cardTitle || store.cardTitle || '标题'"
-              :subtitle="pageData.pageStyle?.cardSubtitle || store.cardSubtitle"
-              :header-text="pageData.pageStyle?.headerText || store.headerText"
+              :title="store.cardTitle"
+              :subtitle="store.cardSubtitle"
+              :header-text="store.headerText"
               :footer-slogan="store.footerSlogan"
-              :code-theme="pageData.pageStyle?.codeTheme || store.codeTheme"
+              :code-theme="store.codeTheme"
             />
           </CardCanvas>
         </div>
@@ -89,30 +83,6 @@
         ></span>
       </div>
 
-      <!-- 自动分页提示 -->
-      <div v-if="store.totalPages > 1" class="converter-view__split-hint">
-        <svg class="converter-view__split-hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
-        </svg>
-        <span>已自动拆分为 {{ store.totalPages }} 页</span>
-      </div>
-
-      <!-- 页面锁定控制 -->
-      <button 
-        :class="['converter-view__page-lock-btn', { 'converter-view__page-lock-btn--locked': store.isPageLocked() }]"
-        @click="store.isPageLocked() ? store.unlockPage() : store.lockPage()"
-        :title="store.isPageLocked() ? '点击解锁页面样式' : '点击锁定当前页面样式'"
-      >
-        <svg v-if="store.isPageLocked()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
-        </svg>
-        <span>{{ store.isPageLocked() ? '已锁定' : '未锁定' }}</span>
-      </button>
     </main>
 
     <!-- Right: fixed style panel -->
@@ -126,6 +96,8 @@
         v-model:font-weight="store.fontWeight"
         v-model:header-text="store.headerText"
         v-model:author="store.author"
+        v-model:card-title="store.cardTitle"
+        v-model:card-subtitle="store.cardSubtitle"
       />
       <div class="converter-view__export-btns">
         <button class="converter-view__export-btn" @click="handleExportCurrent">导出当前页</button>
@@ -139,6 +111,7 @@
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useCardStore } from '@/stores/cardStore'
 import { useCardExport } from '@/composables/useCardExport'
+import { marked } from 'marked'
 import MarkdownEditor from '@/components/converter/MarkdownEditor.vue'
 import CardCanvas from '@/components/card/CardCanvas.vue'
 import CardRenderer from '@/components/card/CardRenderer.vue'
@@ -229,30 +202,20 @@ function handlePageBreakFromToolbar() {
 
 const fontOverrideStyle = computed(() => {
   const s: Record<string, string> = {}
-  const currentPageStyle = store.pages[store.currentPageIndex]?.pageStyle
   
-  // 优先使用页面独立样式
-  if (currentPageStyle?.titleFont) {
-    s['--card-title-font'] = currentPageStyle.titleFont
-  } else if (store.titleFont) {
+  if (store.titleFont) {
     s['--card-title-font'] = store.titleFont
   }
   
-  if (currentPageStyle?.bodyFont) {
-    s['--card-body-font'] = currentPageStyle.bodyFont
-  } else if (store.bodyFont) {
+  if (store.bodyFont) {
     s['--card-body-font'] = store.bodyFont
   }
   
-  if (currentPageStyle?.fontScale && currentPageStyle.fontScale !== 100) {
-    s['--card-font-scale'] = String(currentPageStyle.fontScale / 100)
-  } else if (store.fontScale !== 100) {
+  if (store.fontScale !== 100) {
     s['--card-font-scale'] = String(store.fontScale / 100)
   }
   
-  if (currentPageStyle?.fontWeight && currentPageStyle.fontWeight !== 400) {
-    s['--card-font-weight'] = String(currentPageStyle.fontWeight)
-  } else if (store.fontWeight !== 400) {
+  if (store.fontWeight !== 400) {
     s['--card-font-weight'] = String(store.fontWeight)
   }
   
@@ -265,97 +228,8 @@ function setCanvasRef(el: any, idx: number) {
   if (el) canvasRefs.value.set(idx, el)
 }
 
-/**
- * 检测卡片内容是否溢出
- */
-function checkOverflow(): boolean {
-  const canvas = canvasRefs.value.get(store.currentPageIndex)
-  const cardEl = canvas?.cardRef
-  if (!cardEl) return false
-
-  // 卡片实际高度 1440px
-  const cardHeight = 1440
-  const contentHeight = cardEl.scrollHeight
-  
-  return contentHeight > cardHeight
-}
-
-/**
- * 自动分页：检测溢出并分割内容
- */
-async function autoPaginate() {
-  await nextTick()
-  
-  if (!checkOverflow()) return
-  
-  // 获取当前页的步骤数
-  const currentPageData = store.pages[store.currentPageIndex]
-  if (!currentPageData || currentPageData.steps.length <= 1) return
-  
-  // 将最后一个步骤移到下一页
-  const lastStep = currentPageData.steps[currentPageData.steps.length - 1]
-  const currentSource = store.pageSources[store.currentPageIndex]
-  
-  // 从原始 Markdown 中提取最后一个步骤的完整内容
-  const lines = currentSource.split('\n')
-  const stepStartIndex = lines.findIndex((line, _idx) => {
-    if (!line.startsWith('## ')) return false
-    // 检查是否是最后一个步骤
-    const stepTitle = line.substring(3).trim()
-    return stepTitle === lastStep.title || line.includes(lastStep.title)
-  })
-  
-  if (stepStartIndex === -1) return
-  
-  // 找到步骤结束位置（下一个 ## 或文件末尾）
-  let stepEndIndex = lines.findIndex((line, idx) => 
-    idx > stepStartIndex && line.startsWith('## ')
-  )
-  if (stepEndIndex === -1) stepEndIndex = lines.length
-  
-  // 提取步骤的 Markdown
-  const stepMarkdown = lines.slice(stepStartIndex, stepEndIndex).join('\n')
-  
-  // 创建或更新下一页
-  if (store.pageSources.length <= store.currentPageIndex + 1) {
-    // 没有下一页，创建新页
-    const newPageMd = `# ${currentPageData.title}\n\n${currentPageData.subtitle ? '> ' + currentPageData.subtitle + '\n\n' : ''}${stepMarkdown}\n`
-    store.pageSources.splice(store.currentPageIndex + 1, 0, newPageMd)
-  } else {
-    // 有下一页，插入到下一页开头
-    const nextPageSource = store.pageSources[store.currentPageIndex + 1]
-    // 移除下一页的标题部分，保留其他内容
-    const lines = nextPageSource.split('\n')
-    let contentStartIndex = 0
-    for (let i = 0; i < lines.length; i++) {
-      if (i === 0 && lines[i].startsWith('#')) continue
-      if (lines[i].startsWith('>')) continue
-      if (lines[i].trim() === '') continue
-      contentStartIndex = i
-      break
-    }
-    const nextContent = lines.slice(contentStartIndex).join('\n')
-    const newNextPage = `# ${currentPageData.title}\n\n${currentPageData.subtitle ? '> ' + currentPageData.subtitle + '\n\n' : ''}${stepMarkdown}\n\n${nextContent}`
-    store.pageSources[store.currentPageIndex + 1] = newNextPage
-  }
-  
-  // 从当前页移除该步骤
-  lines.splice(stepStartIndex, stepEndIndex - stepStartIndex)
-  store.pageSources[store.currentPageIndex] = lines.join('\n').trim()
-}
-
-// 监听内容变化，自动检测溢出
-watch(
-  () => [store.currentPageSource, store.fontScale, store.fontWeight],
-  () => {
-    // 延迟检测，等待渲染完成
-    setTimeout(() => autoPaginate(), 500)
-  },
-  { deep: true }
-)
-
 onMounted(() => {
-  nextTick(() => autoPaginate())
+  // 初始化
 })
 
 async function handleExportCurrent() {
@@ -383,6 +257,65 @@ async function handleExportAll() {
     }
   }
 }
+
+// 监听分页标记，自动分页
+let lastContent = store.currentPageSource // 记录上次内容，用于检测新输入
+
+watch(
+  () => store.currentPageSource,
+  (newContent, oldContent) => {
+    if (!newContent) return
+    
+    // 只有当内容增加时才检测（说明是用户新输入）
+    if (oldContent && newContent.length <= oldContent.length) {
+      return // 内容没有增加，可能是删除或修改，不触发分页
+    }
+    
+    const lines = newContent.split('\n')
+    let pageIndex = -1
+    let pageMarker = ''
+    
+    // 查找分页标记（只检测最后一行，说明是刚输入的）
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = lines[i].trim()
+      if (trimmed === '===' || trimmed === '---page---' || trimmed === '<!-- page -->') {
+        pageIndex = i
+        pageMarker = trimmed
+      }
+    }
+    
+    // 找到分页标记，立即触发分页
+    if (pageIndex >= 0) {
+      const beforeContent = lines.slice(0, pageIndex).join('\n').trim()
+      const afterContent = lines.slice(pageIndex + 1).join('\n').trim()
+      
+      console.log('[AutoPage] 检测到新输入的分页标记:', pageMarker, '位置:', pageIndex)
+      console.log('[AutoPage] 分页前内容长度:', beforeContent.length)
+      console.log('[AutoPage] 分页后内容长度:', afterContent.length)
+      
+      // 更新当前页（删除分页标记）
+      store.pageSources[store.currentPageIndex] = beforeContent
+      
+      // 插入新页面
+      if (store.pageSources.length <= store.currentPageIndex + 1) {
+        // 没有下一页，创建新页面
+        store.pageSources.splice(store.currentPageIndex + 1, 0, afterContent)
+        console.log('[AutoPage] ✅ 创建了新页面')
+      } else {
+        // 已有下一页，追加内容
+        store.pageSources[store.currentPageIndex + 1] = 
+          afterContent + '\n\n' + store.pageSources[store.currentPageIndex + 1]
+        console.log('[AutoPage] ✅ 追加到下一页')
+      }
+      
+      console.log('[AutoPage] 总页数:', store.pageSources.length)
+      
+      // 更新 lastContent
+      lastContent = newContent
+    }
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>
@@ -426,6 +359,13 @@ async function handleExportAll() {
   color: #495057;
   white-space: nowrap;
 }
+.converter-view__shortcut-hint {
+  font-size: 12px;
+  color: #667eea;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: 8px;
+}
 .converter-view__toolbar-btns {
   display: flex;
   gap: 6px;
@@ -460,20 +400,6 @@ async function handleExportAll() {
   background: #fee;
 }
 
-/* 分页按钮样式 */
-.converter-view__toolbar-btns--page-break {
-  position: relative;
-}
-.converter-view__toolbar-btns--page-break svg {
-  width: 16px;
-  height: 16px;
-  color: #667eea;
-}
-.converter-view__toolbar-btns--page-break:hover:not(:disabled) {
-  background: #f0f0ff;
-  border-color: #667eea;
-}
-
 /* 中间预览区 */
 .converter-view__preview {
   flex: 1;
@@ -482,28 +408,67 @@ async function handleExportAll() {
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 24px 80px;
+  padding: 40px 80px;
   overflow: hidden;
-  gap: 20px;
+  gap: 24px;
+  /* 呼吸感：微噪点背景 */
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(118, 75, 162, 0.03) 0%, transparent 50%),
+    linear-gradient(135deg, #f5f7fa 0%, #fafbfc 100%);
+}
+.converter-view__preview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.015;
+  pointer-events: none;
 }
 .converter-view__card-area {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 .converter-view__card-wrapper {
   position: relative;
-  border-radius: 20px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
+  /* 层次感：大范围、低透明度柔和阴影 */
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   overflow: hidden;
-  background: #FFFFFF;
-  padding: 2px;
-  transition: transform 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  padding: 3px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 样机外壳效果 */
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+.converter-view__card-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.8) 50%, 
+    transparent 100%);
 }
 .converter-view__card-wrapper:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 56px rgba(0, 0, 0, 0.18), 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 
+    0 28px 80px rgba(0, 0, 0, 0.15),
+    0 12px 32px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 /* 导航箭头 - 贴在卡片两侧 */
@@ -545,100 +510,54 @@ async function handleExportAll() {
 /* 分页指示器 */
 .converter-view__pagination {
   display: flex;
-  gap: 10px;
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(10px);
+  gap: 12px;
+  padding: 14px 24px;
+  /* 柔和化：毛玻璃效果 */
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 28px;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 1px 4px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  position: relative;
+  z-index: 1;
 }
 .converter-view__dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #dee2e6;
+  background: #c8cdd3;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.converter-view__dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(102, 126, 234, 0.15);
+  transition: transform 0.3s;
 }
 .converter-view__dot:hover {
-  background: #adb5bd;
-  transform: scale(1.2);
+  background: #667eea;
+  transform: scale(1.3);
+}
+.converter-view__dot:hover::before {
+  transform: translate(-50%, -50%) scale(1);
 }
 .converter-view__dot.active {
   background: #667eea !important;
   transform: scale(1.3);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
-
-/* 自动分页提示 */
-.converter-view__split-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  border-radius: 12px;
-  font-size: 13px;
-  color: #667eea;
-  font-weight: 500;
-  animation: converter-view__split-hint-fadeIn 0.3s ease-out;
-}
-.converter-view__split-hint-icon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-@keyframes converter-view__split-hint-fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 页面锁定控制 */
-.converter-view__page-lock-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  background: white;
-  color: #868e96;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-.converter-view__page-lock-btn svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-}
-.converter-view__page-lock-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.04);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.15);
-}
-.converter-view__page-lock-btn--locked {
-  border-color: #667eea;
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.08);
-}
-.converter-view__page-lock-btn--locked:hover {
-  border-color: #e74c3c;
-  color: #e74c3c;
-  background: rgba(231, 76, 60, 0.08);
-  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.15);
+.converter-view__dot.active::before {
+  transform: translate(-50%, -50%) scale(1);
 }
 
 /* 右侧设置面板 */
@@ -647,56 +566,104 @@ async function handleExportAll() {
   right: 24px;
   top: 24px;
   bottom: 24px;
-  width: 300px;
+  width: 400px;
   background: #FFFFFF;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
-  padding: 24px 20px;
-  padding-bottom: 24px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   overflow: hidden;
   backdrop-filter: blur(10px);
   z-index: 100;
+}
+
+/* 卡片信息高亮区域 */
+.converter-view__settings-section--highlight {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid #6C5CE7;
+  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.1);
+}
+.converter-view__settings-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(108, 92, 231, 0.2);
+}
+.converter-view__field {
+  margin-bottom: 10px;
+}
+.converter-view__field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 4px;
+}
+.converter-view__field input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: all 0.2s;
+  background: white;
+}
+.converter-view__field input:focus {
+  outline: none;
+  border-color: #6C5CE7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+.converter-view__field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.converter-view__required {
+  color: #E74C3C;
+  font-weight: bold;
 }
 .converter-view__export-btns {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-top: auto;
-  padding-top: 16px;
-  padding-bottom: 8px;
-  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+  border-top: 1px solid #e8e8e8;
   flex-shrink: 0;
 }
 .converter-view__export-btn {
   width: 100%;
-  padding: 12px 18px;
+  padding: 10px 16px;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #f8f9fa;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: #495057;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 .converter-view__export-btn:hover {
   background: #e9ecef;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 .converter-view__export-btn--primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
 }
 .converter-view__export-btn--primary:hover {
   background: linear-gradient(135deg, #5568d3 0%, #65408b 100%);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
 }
 
 /* 滚动条美化 */

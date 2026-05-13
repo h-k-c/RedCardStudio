@@ -5,7 +5,7 @@
     <div v-if="headerText" class="card__header">{{ headerText }}</div>
     
     <!-- 固定区域：标题 -->
-    <h1 class="card__title" v-html="formattedTitle"></h1>
+    <h1 v-if="title" class="card__title" v-html="formattedTitle"></h1>
     
     <!-- 固定区域：副标题 -->
     <p v-if="subtitle" class="card__subtitle">{{ subtitle }}</p>

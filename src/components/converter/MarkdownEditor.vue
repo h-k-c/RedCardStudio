@@ -26,19 +26,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { MdEditor, type ToolbarNames } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 
 const props = defineProps<{ modelValue: string }>()
-const emit = defineEmits<{ 
-  'update:modelValue': [value: string],
-  'page-break': [beforeContent: string, afterContent: string]
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+  (e: 'page-break', beforeContent: string, afterContent: string): void
 }>()
 
 const editorRef = ref<InstanceType<typeof MdEditor>>()
 const showPageToast = ref(false)
 const toastMessage = ref('')
+
+// 监听分页标记
+let lastContentLength = 0
 
 const editorValue = computed({
   get: () => props.modelValue,
@@ -165,6 +168,68 @@ async function handleUploadImg(files: File[], callback: (urls: string[]) => void
   
   callback(urls)
 }
+
+/**
+ * 监听内容变化，检测分页标记
+ */
+watch(
+  () => props.modelValue,
+  (newContent, oldContent) => {
+    if (!newContent) return
+    
+    // 只有当内容增加时才检测（说明是用户新输入）
+    if (oldContent && newContent.length <= oldContent.length) {
+      return // 内容没有增加，可能是删除或修改，不触发分页
+    }
+    
+    const lines = newContent.split('\n')
+    let pageIndex = -1
+    let pageMarker = ''
+    
+    // 查找分页标记（只检测最后一行，说明是刚输入的）
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = lines[i].trim()
+      if (trimmed === '===' || trimmed === '---page---' || trimmed === '<!-- page -->') {
+        pageIndex = i
+        pageMarker = trimmed
+      }
+    }
+    
+    // 找到分页标记，立即触发分页
+    if (pageIndex >= 0) {
+      const beforeContent = lines.slice(0, pageIndex).join('\n').trim()
+      const afterContent = lines.slice(pageIndex + 1).join('\n').trim()
+      
+      // 只有后面有内容才分页
+      if (afterContent) {
+        // 更新当前页（删除分页标记）
+        emit('update:modelValue', beforeContent)
+        
+        // 触发分页事件
+        emit('page-break', beforeContent, afterContent)
+        showToast('已分页')
+      } else {
+        // 后面没有内容，删除标记并提示
+        emit('update:modelValue', beforeContent)
+        showToast('后面没有内容了')
+      }
+    }
+  },
+  { deep: true }
+)
+
+/**
+ * 显示提示
+ */
+function showToast(message: string) {
+  toastMessage.value = message
+  showPageToast.value = true
+  setTimeout(() => {
+    showPageToast.value = false
+  }, 2000)
+}
+
+
 </script>
 
 <style scoped>

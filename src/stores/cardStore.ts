@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { CardStyle } from '@/types/styles'
-import type { CardData, CardPageStyle } from '@/types/card'
+import type { CardData } from '@/types/card'
 import { useMarkdownParser } from '@/composables/useMarkdownParser'
 import { STYLE_REGISTRY } from '@/data/styleRegistry'
 import { useImageStore } from './imageStore'
@@ -11,8 +11,6 @@ export const useCardStore = defineStore('card', () => {
   const imageStore = useImageStore()
 
   const pageSources = ref<string[]>([''])
-  // 存储每页的独立样式
-  const pageStyles = ref<Array<CardPageStyle | null>>([null])
 
   const currentStyle = ref<CardStyle>('white')
   const author = ref('AI_小蚂蚁')
@@ -44,20 +42,25 @@ export const useCardStore = defineStore('card', () => {
     const multiPageResult = parseMultiPage(fullMarkdown, autoSplitMax.value)
     
     return multiPageResult.pages.map((pageData, index) => {
-      // 优先使用页面锁定的元数据，否则使用全局设置
-      const pageStyle = pageStyles.value[index]
-      pageData.title = pageStyle?.cardTitle || cardTitle.value || '标题'
-      pageData.subtitle = pageStyle?.cardSubtitle || cardSubtitle.value
-      pageData.category = pageStyle?.cardCategory || cardCategory.value || defaultCategory.value
-      pageData.tags = pageStyle?.cardTags 
-        ? pageStyle.cardTags.split(/[,，\s]+/).filter(Boolean)
-        : (cardTags.value ? cardTags.value.split(/[,，\s]+/).filter(Boolean) : [])
+      pageData.title = cardTitle.value
+      pageData.subtitle = cardSubtitle.value
+      pageData.category = cardCategory.value || defaultCategory.value
+      pageData.tags = cardTags.value ? cardTags.value.split(/[,，\s]+/).filter(Boolean) : []
       
-      // 附加页面独立样式
-      pageData.pageStyle = pageStyle || null
       return pageData
     })
   })
+
+  // 监听页面切换，确保 pageSources 同步
+  watch(
+    () => currentPageIndex.value,
+    (newIndex) => {
+      // 如果当前页超出了 pageSources 的范围，扩展它
+      while (pageSources.value.length <= newIndex) {
+        pageSources.value.push('')
+      }
+    }
+  )
 
   const totalPages = computed(() => pages.value.length)
 
@@ -104,91 +107,36 @@ export const useCardStore = defineStore('card', () => {
   function addPage() {
     const template = `## 步骤一\n在这里输入内容...\n`
     pageSources.value.splice(currentPageIndex.value + 1, 0, template)
-    pageStyles.value.splice(currentPageIndex.value + 1, 0, null)
     currentPageIndex.value++
   }
 
   function deletePage() {
     if (pageSources.value.length <= 1) return
-    pageSources.value.splice(currentPageIndex.value, 1)
-    pageStyles.value.splice(currentPageIndex.value, 1)
-    if (currentPageIndex.value >= pageSources.value.length) {
-      currentPageIndex.value = pageSources.value.length - 1
+    
+    const deletedIndex = currentPageIndex.value
+    const deletedContent = pageSources.value[deletedIndex]
+    
+    // 删除当前页
+    pageSources.value.splice(deletedIndex, 1)
+    
+    // 如果有上一页，把内容追加到上一页后面
+    if (deletedIndex > 0 && deletedContent) {
+      const prevIndex = deletedIndex - 1
+      pageSources.value[prevIndex] = pageSources.value[prevIndex] + '\n\n' + deletedContent
+      console.log('[DeletePage] 已将被删页面内容追加到上一页')
+      
+      // 跳转到上一页
+      currentPageIndex.value = prevIndex
+    } else if (deletedIndex === 0 && pageSources.value.length > 0) {
+      // 删除的是第一页，停留在新的第一页
+      currentPageIndex.value = 0
     }
-  }
-
-  /**
-   * 锁定当前页：保存当前样式快照，不再受全局样式影响
-   */
-  function lockPage() {
-    const pageIndex = currentPageIndex.value
-    if (pageIndex >= 0 && pageIndex < pageSources.value.length) {
-      // 保存当前全局样式到页面
-      pageStyles.value[pageIndex] = {
-        style: currentStyle.value,
-        titleFont: titleFont.value,
-        bodyFont: bodyFont.value,
-        fontScale: fontScale.value,
-        fontWeight: fontWeight.value,
-        headerText: headerText.value,
-        author: author.value,
-        codeTheme: codeTheme.value,
-        cardTitle: cardTitle.value,
-        cardSubtitle: cardSubtitle.value,
-        cardCategory: cardCategory.value,
-        cardTags: cardTags.value
-      }
-    }
-  }
-
-  /**
-   * 解锁当前页：清除样式快照，恢复使用全局样式
-   */
-  function unlockPage() {
-    const pageIndex = currentPageIndex.value
-    if (pageIndex >= 0 && pageIndex < pageSources.value.length) {
-      pageStyles.value[pageIndex] = null
-    }
-  }
-
-  /**
-   * 检查当前页是否已锁定
-   */
-  function isPageLocked(): boolean {
-    const pageIndex = currentPageIndex.value
-    if (pageIndex >= 0 && pageIndex < pageSources.value.length) {
-      return !!pageStyles.value[pageIndex]
-    }
-    return false
-  }
-
-  /**
-   * 获取当前页应使用的样式（优先使用页面独立样式）
-   */
-  function getCurrentPageStyle() {
-    const pageIndex = currentPageIndex.value
-    if (pageIndex >= 0 && pageIndex < pages.value.length) {
-      const page = pages.value[pageIndex]
-      if (page.pageStyle) {
-        return page.pageStyle
-      }
-    }
-    // 返回全局样式
-    return {
-      style: currentStyle.value,
-      titleFont: titleFont.value,
-      bodyFont: bodyFont.value,
-      fontScale: fontScale.value,
-      fontWeight: fontWeight.value,
-      headerText: headerText.value,
-      author: author.value,
-      codeTheme: codeTheme.value
-    }
+    
+    console.log('[DeletePage] 总页数:', pageSources.value.length)
   }
 
   function reset() {
     pageSources.value = ['']
-    pageStyles.value = [null]
     currentPageIndex.value = 0
   }
 
@@ -222,10 +170,6 @@ export const useCardStore = defineStore('card', () => {
     prevPage,
     addPage,
     deletePage,
-    lockPage,
-    unlockPage,
-    isPageLocked,
-    getCurrentPageStyle,
     reset,
   }
 })

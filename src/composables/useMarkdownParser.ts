@@ -176,44 +176,52 @@ function needsAutoSplit(md: string, maxSteps: number): boolean {
   return estimatedHeight > CARD_HEIGHT
 }
 
+/** 按内容高度估算进行智能分页 */
+function autoSplitByHeight(md: string, maxSteps: number, parseFn: (md: string) => CardData): MultiPageResult {
+  const lines = md.split('\n')
+  const chunks: string[] = []
+  let currentChunk = ''
+  let currentChunkLines = 0
+  const MAX_LINES_PER_PAGE = 40 // 每页最多约 40 行（1440px / 30px ≈ 48 行，留余量）
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    
+    // 检查是否是 ## 或 ### 标题（分页点）
+    if (trimmed.match(/^#{2,3}\s/)) {
+      // 如果当前块已经超过限制，保存并开始新块
+      if (currentChunkLines > MAX_LINES_PER_PAGE && currentChunk.trim()) {
+        chunks.push(currentChunk.trim())
+        currentChunk = ''
+        currentChunkLines = 0
+      }
+    }
+    
+    currentChunk += line + '\n'
+    currentChunkLines++
+  }
+
+  // 添加最后一块
+  if (currentChunk.trim()) {
+    chunks.push(currentChunk.trim())
+  }
+
+  // 按 maxSteps 分组（合并小块）
+  const pages: CardData[] = []
+  for (let i = 0; i < chunks.length; i += maxSteps) {
+    const group = chunks.slice(i, i + maxSteps).join('\n\n')
+    pages.push(parseFn(group))
+  }
+
+  return { pages, totalPages: pages.length }
+}
+
 
 
 export function useMarkdownParser() {
   /** 按 ## 标题进行简单分页 */
   function autoSplitByHeadings(md: string, maxSteps: number): MultiPageResult {
-    // 按 ## 或 ### 标题分割 Markdown 文本
-    const lines = md.split('\n')
-    const chunks: string[] = []
-    let currentChunk = ''
-    let headingCount = 0
-
-    for (const line of lines) {
-      const trimmed = line.trim()
-      // 检查是否是 ## 或 ### 标题
-      if (trimmed.match(/^#{2,3}\s/)) {
-        // 如果当前块有内容，保存
-        if (currentChunk.trim()) {
-          chunks.push(currentChunk.trim())
-          currentChunk = ''
-        }
-        headingCount++
-      }
-      currentChunk += line + '\n'
-    }
-
-    // 添加最后一块
-    if (currentChunk.trim()) {
-      chunks.push(currentChunk.trim())
-    }
-
-    // 按 maxSteps 分组
-    const pages: CardData[] = []
-    for (let i = 0; i < chunks.length; i += maxSteps) {
-      const group = chunks.slice(i, i + maxSteps).join('\n\n')
-      pages.push(parseSinglePage(group))
-    }
-
-    return { pages, totalPages: pages.length }
+    return autoSplitByHeight(md, maxSteps, parseSinglePage)
   }
   function parse(md: string): CardData {
     return parseSinglePage(md)

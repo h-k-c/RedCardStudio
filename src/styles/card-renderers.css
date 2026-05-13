@@ -18,6 +18,19 @@
 .card .card__step-title {
   font-family: var(--card-title-font, inherit) !important;
 }
+.card .card__markdown-content h1,
+.card .card__markdown-content h2,
+.card .card__markdown-content h3,
+.card .card__markdown-content h4 {
+  font-family: var(--card-title-font, inherit) !important;
+}
+.card .card__markdown-content p,
+.card .card__markdown-content li,
+.card .card__markdown-content blockquote,
+.card .card__markdown-content td {
+  font-family: var(--card-body-font, inherit) !important;
+  font-weight: var(--card-font-weight, 400);
+}
 .card .card__subtitle,
 .card .card__step-desc,
 .card .card__step-tip,
@@ -326,6 +339,130 @@
 .card--japanese .card__header { color: #BBB; letter-spacing: 0.3em; }
 .card--magazine .card__header { color: #999; }
 
+/* === Markdown 内容区域样式 === */
+.card__markdown-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  overflow: hidden; /* 不要滚动条，内容放不下就自动分页 */
+}
+
+/* 标题样式 */
+.card__markdown-content h1 {
+  font-size: calc(36px * var(--card-font-scale, 1));
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+}
+.card__markdown-content h2 {
+  font-size: calc(28px * var(--card-font-scale, 1));
+  font-weight: 600;
+  margin: 24px 0 12px 0;
+  line-height: 1.3;
+}
+.card__markdown-content h3 {
+  font-size: calc(22px * var(--card-font-scale, 1));
+  font-weight: 600;
+  margin: 20px 0 10px 0;
+  line-height: 1.3;
+}
+.card__markdown-content h4 {
+  font-size: calc(18px * var(--card-font-scale, 1));
+  font-weight: 600;
+  margin: 16px 0 8px 0;
+}
+
+/* 段落样式 */
+.card__markdown-content p {
+  font-size: calc(15px * var(--card-font-scale, 1));
+  line-height: 1.8;
+  margin: 12px 0;
+  color: inherit;
+}
+
+/* 列表样式 */
+.card__markdown-content ul,
+.card__markdown-content ol {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+.card__markdown-content li {
+  margin: 6px 0;
+  line-height: 1.7;
+  font-size: calc(15px * var(--card-font-scale, 1));
+}
+.card__markdown-content ul li {
+  list-style-type: disc;
+}
+.card__markdown-content ol li {
+  list-style-type: decimal;
+}
+
+/* 引用样式 */
+.card__markdown-content blockquote {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-left: 3px solid;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* 代码块样式 */
+.card__markdown-content pre {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", monospace;
+  font-size: calc(13px * var(--card-font-scale, 1));
+  line-height: 1.6;
+}
+.card__markdown-content pre code {
+  display: block;
+  padding: 0;
+  background: none;
+  color: inherit;
+}
+.card__markdown-content code {
+  display: inline;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9em;
+}
+
+/* 图片样式 */
+.card__markdown-content img {
+  display: block;
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 16px auto;
+}
+
+/* 分割线样式 */
+.card__markdown-content hr {
+  border: none;
+  height: 1px;
+  margin: 24px 0;
+  opacity: 0.3;
+}
+
+/* 表格样式 */
+.card__markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.card__markdown-content th,
+.card__markdown-content td {
+  padding: 10px;
+  border: 1px solid;
+  text-align: left;
+}
+.card__markdown-content th {
+  font-weight: 600;
+}
+
 /* === 杂志经典 === */
 .card--magazine {
   background: #FAFAF7;
@@ -542,3 +679,78 @@
 .card--purewhite .card__tags { margin-top: 18px; }
 .card--purewhite .card__tag { background: #0A0A0A; color: #FFFFFF; border-radius: 6px; padding: 4px 14px; font-size: calc(12px * var(--card-font-scale, 1)); font-weight: 500; }
 .card--purewhite .card__footer { margin-top: auto; padding-top: 36px; border-top: 2px solid #0A0A0A; display: flex; justify-content: space-between; font-size: calc(13px * var(--card-font-scale, 1)); color: #888; letter-spacing: 0.08em; font-weight: 500; }
+
+/* === 各主题的 Markdown 内容样式覆盖 === */
+
+/* 杂志经典 */
+.card--magazine .card__markdown-content h1 { font-family: "Noto Serif SC", serif; font-size: calc(32px * var(--card-font-scale, 1)); }
+.card--magazine .card__markdown-content h2 { font-family: "Noto Serif SC", serif; font-size: calc(24px * var(--card-font-scale, 1)); }
+.card--magazine .card__markdown-content blockquote { border-left-color: #C4A265; background: #F5F0E8; }
+.card--magazine .card__markdown-content pre { background: #F5F0E8; border: 1px solid #E0DDD6; }
+.card--magazine .card__markdown-content code { background: #F5F0E8; color: #8B7355; }
+.card--magazine .card__markdown-content hr { background: #C4A265; }
+
+/* 活力元气 */
+.card--vibrant .card__markdown-content h1 { font-family: "Fredoka", "Noto Sans SC"; background: linear-gradient(120deg, #FF6B6B, #FF8E53); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.card--vibrant .card__markdown-content h2 { font-family: "Fredoka", "Noto Sans SC"; color: #FF6B6B; }
+.card--vibrant .card__markdown-content blockquote { border-left-color: #FF8E53; background: #FFF5EE; }
+.card--vibrant .card__markdown-content pre { background: #FFF8F0; border: 1px solid #FFE0B2; }
+.card--vibrant .card__markdown-content code { background: #FFF0E5; color: #FF6B6B; }
+.card--vibrant .card__markdown-content hr { background: linear-gradient(90deg, #FF6B6B, #FF8E53); }
+
+/* 暗黑高级 */
+.card--dark .card__markdown-content h1 { color: #F0F0F0; }
+.card--dark .card__markdown-content h2 { color: #E0E0E0; }
+.card--dark .card__markdown-content p { color: #B0B0B0; }
+.card--dark .card__markdown-content blockquote { border-left-color: #C9A96E; background: rgba(201,169,110,0.05); color: #B0B0B0; }
+.card--dark .card__markdown-content pre { background: #1a1a2e; border: 1px solid #2a2a3e; }
+.card--dark .card__markdown-content code { background: rgba(255,255,255,0.05); color: #00D4AA; }
+.card--dark .card__markdown-content hr { background: #C9A96E; }
+.card--dark .card__markdown-content th,
+.card--dark .card__markdown-content td { border-color: #2a2a3e; }
+
+/* 日系简约 */
+.card--japanese .card__markdown-content h1 { font-weight: 300; letter-spacing: 0.05em; }
+.card--japanese .card__markdown-content h2 { font-weight: 300; letter-spacing: 0.03em; color: #555; }
+.card--japanese .card__markdown-content p { font-weight: 300; color: #666; }
+.card--japanese .card__markdown-content blockquote { border-left-color: #CCC; background: #FAFAFA; color: #888; }
+.card--japanese .card__markdown-content pre { background: #FAFAFA; border: 1px solid #E8E8E8; }
+.card--japanese .card__markdown-content code { background: #F5F5F5; color: #888; }
+.card--japanese .card__markdown-content hr { background: #E8E8E8; }
+.card--japanese .card__markdown-content th,
+.card--japanese .card__markdown-content td { border-color: #E8E8E8; }
+
+/* 文艺清新 */
+.card--literary .card__markdown-content h1 { font-family: "Noto Serif SC", serif; color: #2D3B2D; }
+.card--literary .card__markdown-content h2 { font-family: "Noto Serif SC", serif; color: #3D4B3D; }
+.card--literary .card__markdown-content blockquote { border-left-color: #B5D5C5; background: rgba(181,213,197,0.1); color: #6B7B6B; font-family: "Noto Serif SC"; }
+.card--literary .card__markdown-content pre { background: rgba(255,255,255,0.6); border: 1px solid rgba(181,213,197,0.3); }
+.card--literary .card__markdown-content code { background: rgba(181,213,197,0.15); color: #8BA888; }
+.card--literary .card__markdown-content hr { background: linear-gradient(90deg, #B5D5C5, transparent); }
+
+/* 极简黑白 */
+.card--minimal .card__markdown-content h1 { font-weight: 300; letter-spacing: -0.02em; }
+.card--minimal .card__markdown-content h2 { font-weight: 400; color: #333; }
+.card--minimal .card__markdown-content p { color: #555; }
+.card--minimal .card__markdown-content blockquote { border-left-color: #CCC; background: #FAFAFA; color: #777; }
+.card--minimal .card__markdown-content pre { background: #FAFAFA; border: 1px solid #E5E5E5; }
+.card--minimal .card__markdown-content code { background: #F5F5F5; color: #666; }
+.card--minimal .card__markdown-content hr { background: #DDD; }
+
+/* 奶白衬线 */
+.card--white .card__markdown-content h1 { font-family: "Noto Serif SC", serif; color: #1A1A1A; }
+.card--white .card__markdown-content h2 { font-family: "Noto Serif SC", serif; color: #2A2A2A; }
+.card--white .card__markdown-content p { color: #5A4A3A; }
+.card--white .card__markdown-content blockquote { border-left-color: #C8B89A; background: #F5F0E8; color: #7A6A5A; font-style: italic; }
+.card--white .card__markdown-content pre { background: #F5F0E8; border: 1px solid #EDE8E0; }
+.card--white .card__markdown-content code { background: rgba(200,184,154,0.15); color: #9A8A7A; }
+.card--white .card__markdown-content hr { background: #C8B89A; }
+
+/* 纯奶牛白 */
+.card--purewhite .card__markdown-content h1 { font-weight: 600; letter-spacing: -0.02em; }
+.card--purewhite .card__markdown-content h2 { font-weight: 600; color: #222; }
+.card--purewhite .card__markdown-content p { color: #444; }
+.card--purewhite .card__markdown-content blockquote { border-left-color: #0A0A0A; background: #FAFAFA; color: #555; }
+.card--purewhite .card__markdown-content pre { background: #FAFAFA; border: 1px solid #E8E8E8; }
+.card--purewhite .card__markdown-content code { background: #F0F0F0; color: #333; }
+.card--purewhite .card__markdown-content hr { background: #0A0A0A; }
