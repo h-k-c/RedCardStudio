@@ -60,59 +60,7 @@ marked.setOptions({
   renderer: renderer
 })
 
-// ---- 内容高度估算（基于行数统计） ----
-// 卡片 canvas 固定 1080×1440
-
-const CARD_HEIGHT = 1440
-/** 基础行高（16px 字体） */
-const BASE_LINE_HEIGHT = 28
-/** 代码行高 */
-const CODE_LINE_HEIGHT = 22
-/** 列表项额外间距 */
-const LIST_ITEM_MARGIN = 4
-/** 段落间距 */
-const PARAGRAPH_MARGIN = 10
-/** 代码块上下间距 */
-const CODE_BLOCK_MARGIN = 20
-
-/** 计算文本行数（考虑中英文宽度差异） */
-function calculateTextLines(text: string, charsPerLine: number = 45): number {
-  if (!text) return 0
-  
-  // 去除 Markdown 语法和 HTML 标签
-  const cleanText = text
-    .replace(/```[\s\S]*?```/g, '')  // 代码块
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')  // 图片
-    .replace(/[#*`>\[\]()-]/g, '')  // Markdown 符号
-    .replace(/<[^>]*>/g, '')  // HTML 标签
-    .replace(/&[a-z]+;/g, ' ')
-  
-  // 按换行符分割
-  const lines = cleanText.split('\n')
-  let totalLines = 0
-  
-  for (const line of lines) {
-    if (!line.trim()) {
-      totalLines += 1
-      continue
-    }
-    
-    // 计算有效字符数（中文占 2 个英文字符宽度）
-    let effectiveLength = 0
-    for (const char of line) {
-      // 中文字符（CJK）宽度约为英文的 2 倍
-      if (/[\u4e00-\u9fa5\u3000-\u303f\uff00-\uffef]/.test(char)) {
-        effectiveLength += 2
-      } else {
-        effectiveLength += 1
-      }
-    }
-    
-    totalLines += Math.max(1, Math.ceil(effectiveLength / charsPerLine))
-  }
-  
-  return totalLines
-}
+// ---- 自动分页逻辑 ----
 
 /** 是否需要对这张卡片做自动分页 */
 function needsAutoSplit(md: string, maxSteps: number): boolean {
@@ -123,7 +71,7 @@ function needsAutoSplit(md: string, maxSteps: number): boolean {
   // 估算内容高度（简化版：按行数）
   const lines = md.split('\n').length
   const estimatedHeight = lines * 30 // 每行约 30px
-  return estimatedHeight > CARD_HEIGHT
+  return estimatedHeight > 1440 // 卡片高度 1440px
 }
 
 /** 按内容高度估算进行智能分页 */
