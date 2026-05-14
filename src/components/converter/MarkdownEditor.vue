@@ -11,7 +11,20 @@
       :sanitize="sanitizeHtml"
       placeholder="# 标题&#10;> 副标题&#10;&#10;#标签1 #标签2&#10;&#10;## 步骤一&#10;支持 **加粗** *斜体* `代码`&#10;> 💡 小提示&#10;&#10;粘贴图片: Ctrl+V / 拖入&#10;封面图: ![cover](img-001)&#10;内容图: ![](img-002)"
       @on-upload-img="handleUploadImg"
-    />
+    >
+      <template #defTool>
+        <li class="md-editor-toolbar-item" @click="handleIndent" title="首行缩进">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M3 21h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18V7H3v2zm0-6v2h18V3H3z"/>
+          </svg>
+        </li>
+        <li class="md-editor-toolbar-item" @click="handleClearAll" title="清空全部内容">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+          </svg>
+        </li>
+      </template>
+    </MdEditor>
     
     <!-- 分页提示 Toast -->
     <Transition name="toast">
@@ -34,9 +47,11 @@ const props = defineProps<{ modelValue: string }>()
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
   (e: 'page-break', beforeContent: string, afterContent: string): void
+  (e: 'clear-all'): void
 }>()
 
 const editorRef = ref<InstanceType<typeof MdEditor>>()
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const showPageToast = ref(false)
 const toastMessage = ref('')
 
@@ -224,6 +239,48 @@ function showToast(message: string) {
   setTimeout(() => {
     showPageToast.value = false
   }, 2000)
+}
+
+/**
+ * 首行缩进
+ */
+function handleIndent() {
+  const editor = editorRef.value
+  if (!editor) return
+  
+  // 获取 textarea DOM
+  const textarea = editor.$el?.querySelector('textarea') as HTMLTextAreaElement
+  if (!textarea) return
+  
+  const start = textarea.selectionStart
+  const text = props.modelValue
+  
+  // 找到当前行的开头
+  let lineStart = start
+  while (lineStart > 0 && text[lineStart - 1] !== '\n') {
+    lineStart--
+  }
+  
+  // 在当前行开头插入全角空格（中文缩进）
+  const indent = '\u3000\u3000' // 两个全角空格
+  const newText = text.substring(0, lineStart) + indent + text.substring(lineStart)
+  
+  emit('update:modelValue', newText)
+  
+  // 恢复光标位置
+  setTimeout(() => {
+    textarea.selectionStart = textarea.selectionEnd = start + indent.length
+    textarea.focus()
+  }, 0)
+}
+
+/**
+ * 清空全部内容
+ */
+function handleClearAll() {
+  if (confirm('确定要清空所有内容吗？此操作不可恢复。')) {
+    emit('clear-all')
+  }
 }
 
 

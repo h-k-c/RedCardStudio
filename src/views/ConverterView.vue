@@ -23,6 +23,7 @@
       <MarkdownEditor 
         v-model="store.currentPageSource" 
         @page-break="handlePageBreak"
+        @clear-all="store.clearAllPages"
       />
     </aside>
 

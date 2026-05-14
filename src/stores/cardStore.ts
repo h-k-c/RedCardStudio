@@ -114,23 +114,33 @@ export const useCardStore = defineStore('card', () => {
     const deletedIndex = currentPageIndex.value
     const deletedContent = pageSources.value[deletedIndex]
     
-    // 删除当前页
-    pageSources.value.splice(deletedIndex, 1)
-    
-    // 如果有上一页，把内容追加到上一页后面
+    // 先合并内容，再删除页面
     if (deletedIndex > 0 && deletedContent) {
+      // 有上一页，先追加内容
       const prevIndex = deletedIndex - 1
       pageSources.value[prevIndex] = pageSources.value[prevIndex] + '\n\n' + deletedContent
       console.log('[DeletePage] 已将被删页面内容追加到上一页')
-      
-      // 跳转到上一页
-      currentPageIndex.value = prevIndex
-    } else if (deletedIndex === 0 && pageSources.value.length > 0) {
+    }
+    
+    // 再删除当前页
+    pageSources.value.splice(deletedIndex, 1)
+    
+    // 调整当前页索引
+    if (deletedIndex > 0) {
+      // 删除的不是第一页，跳转到上一页
+      currentPageIndex.value = deletedIndex - 1
+    } else {
       // 删除的是第一页，停留在新的第一页
       currentPageIndex.value = 0
     }
     
     console.log('[DeletePage] 总页数:', pageSources.value.length)
+  }
+
+  function clearAllPages() {
+    pageSources.value = ['']
+    currentPageIndex.value = 0
+    console.log('[ClearAll] 已清空所有内容')
   }
 
   function reset() {
@@ -168,6 +178,7 @@ export const useCardStore = defineStore('card', () => {
     prevPage,
     addPage,
     deletePage,
+    clearAllPages,
     reset,
   }
 })
