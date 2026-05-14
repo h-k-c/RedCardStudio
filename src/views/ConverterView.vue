@@ -197,8 +197,16 @@ async function handleExportCurrent() {
 }
 
 async function handleExportAll() {
-  // 逐页导出，不切换页面
+  // 逐页导出，需要临时显示每一页
+  const originalIndex = store.currentPageIndex
+  
   for (let i = 0; i < store.totalPages; i++) {
+    // 临时切换到第 i 页
+    store.currentPageIndex = i
+    
+    // 等待 DOM 更新
+    await new Promise(r => setTimeout(r, 100))
+    
     const canvas = canvasRefs.value.get(i)
     const el = canvas?.cardRef
     
@@ -208,10 +216,13 @@ async function handleExportAll() {
       
       // 延迟一下再导出下一页
       if (i < store.totalPages - 1) {
-        await new Promise(r => setTimeout(r, 200))
+        await new Promise(r => setTimeout(r, 300))
       }
     }
   }
+  
+  // 恢复到原来的页面
+  store.currentPageIndex = originalIndex
 }
 
 // 监听分页标记，自动分页
