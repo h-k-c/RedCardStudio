@@ -64,6 +64,7 @@ marked.setOptions({
  * 将 Markdown 文本渲染为 HTML（用于步骤描述等富文本区域）
  * 去掉最外层 <p> 标签以便行内展示
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function renderInline(md: string): string {
   if (!md) return ''
   
@@ -205,6 +206,7 @@ function estimateStepHeight(step: { title: string; desc: string; tip: string }, 
 }
 
 /** 估算整页卡片的渲染总高度 */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function estimateTotalHeight(data: CardData, fontScale: number = 100): number {
   const scale = fontScale / 100
   const overhead = data.coverImage ? FIXED_OVERHEAD_WITH_COVER * scale : FIXED_OVERHEAD * scale

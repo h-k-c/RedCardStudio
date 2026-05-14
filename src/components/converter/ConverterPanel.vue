@@ -48,18 +48,14 @@
     <div class="converter-panel__section">
       <div class="converter-panel__section-title">🎨 样式配置</div>
       <FontSelector
-        :title-font="store.titleFont"
-        :body-font="store.bodyFont"
-        :font-scale="store.fontScale"
-        :font-weight="store.fontWeight"
-        :header-text="store.headerText"
-        :author="store.author"
-        @update:title-font="store.titleFont = $event"
-        @update:body-font="store.bodyFont = $event"
-        @update:font-scale="store.fontScale = $event"
-        @update:font-weight="store.fontWeight = $event"
-        @update:header-text="store.headerText = $event"
-        @update:author="store.author = $event"
+        v-model:title-font="store.titleFont"
+        v-model:body-font="store.bodyFont"
+        v-model:font-scale="store.fontScale"
+        v-model:font-weight="store.fontWeight"
+        v-model:header-text="store.headerText"
+        v-model:author="store.author"
+        v-model:card-title="store.cardTitle"
+        v-model:card-subtitle="store.cardSubtitle"
       />
     </div>
 

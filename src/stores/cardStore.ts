@@ -7,8 +7,11 @@ import { STYLE_REGISTRY } from '@/data/styleRegistry'
 import { useImageStore } from './imageStore'
 
 export const useCardStore = defineStore('card', () => {
-  const { parseSinglePage, parseMultiPage } = useMarkdownParser()
-  const imageStore = useImageStore()
+  const { parseMultiPage } = useMarkdownParser()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _parseSinglePage = useMarkdownParser().parseSinglePage
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _imageStore = useImageStore()
 
   const pageSources = ref<string[]>([''])
 
@@ -41,7 +44,7 @@ export const useCardStore = defineStore('card', () => {
     // 使用 parseMultiPage 进行分页（自动+手动）
     const multiPageResult = parseMultiPage(fullMarkdown, autoSplitMax.value)
     
-    return multiPageResult.pages.map((pageData, index) => {
+    return multiPageResult.pages.map((pageData, _index) => {
       pageData.title = cardTitle.value
       pageData.subtitle = cardSubtitle.value
       pageData.category = cardCategory.value || defaultCategory.value

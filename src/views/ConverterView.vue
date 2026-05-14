@@ -108,10 +108,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useCardStore } from '@/stores/cardStore'
 import { useCardExport } from '@/composables/useCardExport'
-import { marked } from 'marked'
 import MarkdownEditor from '@/components/converter/MarkdownEditor.vue'
 import CardCanvas from '@/components/card/CardCanvas.vue'
 import CardRenderer from '@/components/card/CardRenderer.vue'
@@ -152,6 +151,7 @@ function handlePageBreak(beforeContent: string, afterContent: string) {
 /**
  * 从工具栏触发分页（直接操作当前内容）
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function handlePageBreakFromToolbar() {
   const currentText = store.currentPageSource
   if (!currentText) return
@@ -266,7 +266,8 @@ async function handleExportAll() {
 }
 
 // 监听分页标记，自动分页
-let lastContent = store.currentPageSource // 记录上次内容，用于检测新输入
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let _lastContent = store.currentPageSource // 记录上次内容，用于检测新输入
 
 watch(
   () => store.currentPageSource,
@@ -318,7 +319,7 @@ watch(
       console.log('[AutoPage] 总页数:', store.pageSources.length)
       
       // 更新 lastContent
-      lastContent = newContent
+      _lastContent = newContent
     }
   },
   { deep: true }
