@@ -68,12 +68,6 @@ const CARD_HEIGHT = 1440
 const BASE_LINE_HEIGHT = 28
 /** 代码行高 */
 const CODE_LINE_HEIGHT = 22
-/** 步骤标题+编号行高 */
-const STEP_TITLE_HEIGHT = 45
-/** 步骤 tip 行高 */
-const STEP_TIP_HEIGHT = 36
-/** 步骤底部间距 */
-const STEP_BOTTOM_MARGIN = 16
 /** 列表项额外间距 */
 const LIST_ITEM_MARGIN = 4
 /** 段落间距 */
@@ -118,64 +112,6 @@ function calculateTextLines(text: string, charsPerLine: number = 45): number {
   }
   
   return totalLines
-}
-
-/** 估算一段 Markdown 描述文本的渲染高度（精确计算） */
-function estimateDescHeight(desc: string, fontScale: number = 1): number {
-  if (!desc) return 0
-  let h = 0
-  
-  const scale = fontScale / 100
-  const lineHeight = BASE_LINE_HEIGHT * scale
-  const codeLineHeight = CODE_LINE_HEIGHT * scale
-
-  // 处理代码块（Markdown 语法）
-  const codeBlockRegex = /```[\s\S]*?```/g
-  const codeBlocks = desc.match(codeBlockRegex)
-  if (codeBlocks) {
-    for (const block of codeBlocks) {
-      // 提取代码内容（去掉 ``` 标记）
-      const code = block
-        .replace(/^```.*\n/, '')
-        .replace(/```$/, '')
-      
-      // 计算所有行数（包括空行）
-      const lines = code.split('\n').length
-      h += Math.max(1, lines) * codeLineHeight
-      h += CODE_BLOCK_MARGIN * scale
-    }
-  }
-
-  // 纯文本（去掉代码块、图片、HTML 标签）
-  let text = desc
-    .replace(codeBlockRegex, '')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-    .replace(/<[^>]*>/g, '')
-    .replace(/&[a-z]+;/g, ' ')
-    .trim()
-
-  if (text) {
-    // 计算段落数
-    const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim())
-    
-    for (const para of paragraphs) {
-      // 检查是否是列表
-      const listItems = para.match(/^[\s]*[-*]\s+/gm)
-      if (listItems) {
-        // 列表项
-        const lines = calculateTextLines(para, 42) // 列表缩进，每行少 3 个字符
-        h += lines * lineHeight
-        h += listItems.length * LIST_ITEM_MARGIN * scale
-      } else {
-        // 普通段落
-        const lines = calculateTextLines(para)
-        h += lines * lineHeight
-        h += PARAGRAPH_MARGIN * scale
-      }
-    }
-  }
-
-  return h
 }
 
 /** 是否需要对这张卡片做自动分页 */
