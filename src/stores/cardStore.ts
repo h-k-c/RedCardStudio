@@ -4,7 +4,6 @@ import type { CardStyle } from '@/types/styles'
 import type { CardData } from '@/types/card'
 import { useMarkdownParser } from '@/composables/useMarkdownParser'
 import { STYLE_REGISTRY } from '@/data/styleRegistry'
-import { useImageStore } from './imageStore'
 
 export const useCardStore = defineStore('card', () => {
   const { parseMultiPage } = useMarkdownParser()

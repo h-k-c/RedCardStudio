@@ -64,10 +64,6 @@ marked.setOptions({
 // 卡片 canvas 固定 1080×1440
 
 const CARD_HEIGHT = 1440
-/** 无封面时的固定开销：标题(90) + 副标题/分类(60) + 标签(50) + 页脚(50) + 内边距(80) + 分割线(30) */
-const FIXED_OVERHEAD = 360
-/** 有封面时的固定开销 */
-const FIXED_OVERHEAD_WITH_COVER = 760
 /** 基础行高（16px 字体） */
 const BASE_LINE_HEIGHT = 28
 /** 代码行高 */
@@ -179,15 +175,6 @@ function estimateDescHeight(desc: string, fontScale: number = 1): number {
     }
   }
 
-  return h
-}
-
-/** 估算单个步骤的渲染总高度 */
-function estimateStepHeight(step: { title: string; desc: string; tip: string }, fontScale: number = 100): number {
-  const scale = fontScale / 100
-  let h = STEP_TITLE_HEIGHT * scale + estimateDescHeight(step.desc, fontScale)
-  if (step.tip) h += STEP_TIP_HEIGHT * scale
-  h += STEP_BOTTOM_MARGIN * scale
   return h
 }
 

@@ -148,57 +148,6 @@ function handlePageBreak(beforeContent: string, afterContent: string) {
   store.goToPage(store.currentPageIndex + 1)
 }
 
-/**
- * 从工具栏触发分页（直接操作当前内容）
- */
-function handlePageBreakFromToolbar() {
-  const currentText = store.currentPageSource
-  if (!currentText) return
-  
-  // 查找光标位置
-  const selection = window.getSelection()
-  if (!selection || selection.rangeCount === 0) return
-  
-  const range = selection.getRangeAt(0)
-  const container = range.startContainer
-  const cmContent = container.parentElement?.closest('.cm-content')
-  if (!cmContent) return
-  
-  const contentRange = document.createRange()
-  contentRange.setStart(cmContent, 0)
-  contentRange.setEnd(container, range.startOffset)
-  const cursorPos = contentRange.toString().length
-  
-  // 查找下一个标题
-  const textAfterCursor = currentText.substring(cursorPos)
-  const lines = textAfterCursor.split('\n')
-  
-  let titleIndex = -1
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim()
-    if (line.startsWith('## ') || line.startsWith('### ')) {
-      titleIndex = i
-      break
-    }
-  }
-  
-  if (titleIndex === -1) return
-  
-  // 计算标题位置
-  let titlePos = cursorPos
-  for (let i = 0; i < titleIndex; i++) {
-    titlePos += lines[i].length + 1
-  }
-  
-  // 分割内容
-  const beforeContent = currentText.substring(0, titlePos).trim()
-  const afterContent = currentText.substring(titlePos).trim()
-  
-  if (!afterContent) return
-  
-  // 调用分页逻辑
-  handlePageBreak(beforeContent, afterContent)
-}
 
 const fontOverrideStyle = computed(() => {
   const s: Record<string, string> = {}
