@@ -8,10 +8,6 @@ import { useImageStore } from './imageStore'
 
 export const useCardStore = defineStore('card', () => {
   const { parseMultiPage } = useMarkdownParser()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _parseSinglePage = useMarkdownParser().parseSinglePage
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _imageStore = useImageStore()
 
   const pageSources = ref<string[]>([''])
 

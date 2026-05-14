@@ -60,20 +60,6 @@ marked.setOptions({
   renderer: renderer
 })
 
-/**
- * 将 Markdown 文本渲染为 HTML（用于步骤描述等富文本区域）
- * 去掉最外层 <p> 标签以便行内展示
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function renderInline(md: string): string {
-  if (!md) return ''
-  
-  // marked 可以直接处理 base64 URL 图片
-  const html = marked.parse(md, { async: false }) as string
-  // 去掉单行时外层 <p></p> 包裹
-  return html.replace(/^<p>([\s\S]*)<\/p>\s*$/, '$1').trim()
-}
-
 // ---- 内容高度估算（基于行数统计） ----
 // 卡片 canvas 固定 1080×1440
 
@@ -203,15 +189,6 @@ function estimateStepHeight(step: { title: string; desc: string; tip: string }, 
   if (step.tip) h += STEP_TIP_HEIGHT * scale
   h += STEP_BOTTOM_MARGIN * scale
   return h
-}
-
-/** 估算整页卡片的渲染总高度 */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function estimateTotalHeight(data: CardData, fontScale: number = 100): number {
-  const scale = fontScale / 100
-  const overhead = data.coverImage ? FIXED_OVERHEAD_WITH_COVER * scale : FIXED_OVERHEAD * scale
-  const stepsH = data.steps.reduce((sum, s) => sum + estimateStepHeight(s, fontScale), 0)
-  return overhead + stepsH
 }
 
 /** 是否需要对这张卡片做自动分页 */

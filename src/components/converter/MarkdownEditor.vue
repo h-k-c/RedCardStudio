@@ -183,14 +183,12 @@ watch(
     
     const lines = newContent.split('\n')
     let pageIndex = -1
-    let _pageMarker = ''
     
     // 查找分页标记（只检测最后一行，说明是刚输入的）
     for (let i = 0; i < lines.length; i++) {
       const trimmed = lines[i].trim()
       if (trimmed === '===' || trimmed === '---page---' || trimmed === '<!-- page -->') {
         pageIndex = i
-        _pageMarker = trimmed
       }
     }
     

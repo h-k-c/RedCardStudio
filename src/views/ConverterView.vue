@@ -151,7 +151,6 @@ function handlePageBreak(beforeContent: string, afterContent: string) {
 /**
  * 从工具栏触发分页（直接操作当前内容）
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function handlePageBreakFromToolbar() {
   const currentText = store.currentPageSource
   if (!currentText) return
@@ -266,8 +265,6 @@ async function handleExportAll() {
 }
 
 // 监听分页标记，自动分页
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-let _lastContent = store.currentPageSource // 记录上次内容，用于检测新输入
 
 watch(
   () => store.currentPageSource,
@@ -317,9 +314,6 @@ watch(
       }
       
       console.log('[AutoPage] 总页数:', store.pageSources.length)
-      
-      // 更新 lastContent
-      _lastContent = newContent
     }
   },
   { deep: true }
