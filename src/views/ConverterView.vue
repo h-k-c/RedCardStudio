@@ -643,4 +643,65 @@ watch(
 .converter-view__settings::-webkit-scrollbar-thumb:hover {
   background: #adb5bd;
 }
+
+/* 响应式布局 */
+@media (max-width: 1400px) {
+  .converter-view__editor {
+    width: 420px;
+  }
+  .converter-view__preview {
+    padding: 40px 60px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .converter-view__editor {
+    width: 380px;
+  }
+  .converter-view__settings {
+    width: 260px;
+  }
+  .converter-view__preview {
+    padding: 40px 40px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .converter-view__editor {
+    width: 340px;
+    left: 16px;
+    top: 16px;
+    bottom: 16px;
+  }
+  .converter-view__settings {
+    width: 240px;
+    right: 16px;
+    top: 16px;
+    bottom: 16px;
+    padding: 16px;
+  }
+  .converter-view__preview {
+    padding: 40px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .converter-view__editor {
+    width: calc(100% - 32px);
+    left: 16px;
+    right: 16px;
+    top: auto;
+    bottom: 16px;
+    height: 50vh;
+  }
+  .converter-view__settings {
+    display: none;
+  }
+  .converter-view__preview {
+    padding: 20px 16px 60vh;
+  }
+  .converter-view__arrow {
+    display: none;
+  }
+}
 </style>
